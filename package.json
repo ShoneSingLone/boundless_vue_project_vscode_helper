@@ -1,0 +1,42 @@
+{
+  "icon": "code.png",
+  "name": "boundless-vue-helper",
+  "displayName": "boundless Vue Helper",
+  "description": "boundless Vue 项目辅助 扩展 ",
+  "publisher": "ShoneSingLone",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.83.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "importVue",
+      "properties": {
+        "importVue.aliasMap": {
+          "type": "object",
+          "description": "key是正则，value是用 replace(正则,value) 部分"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "pnpm run lint",
+    "test": "node ./test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.83.0",
+    "@types/mocha": "^10.0.2",
+    "@types/node": "18.x",
+    "eslint": "^8.50.0",
+    "glob": "^10.3.3",
+    "mocha": "^10.2.0",
+    "typescript": "^5.2.2",
+    "@vscode/test-electron": "^2.3.4"
+  }
+}
