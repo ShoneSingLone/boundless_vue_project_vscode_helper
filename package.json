@@ -1,5 +1,5 @@
 {
-  "icon": "code.png",
+  "icon": "extension/code.png",
   "name": "boundless-vue-helper",
   "displayName": "boundless Vue Helper",
   "description": "boundless Vue 项目辅助 扩展。 在package.json里面添加\"useBoundlessVueHelper\":{alias:{key是正则，value是用于 replace(正则,value) 部分}}",
@@ -14,7 +14,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:vue"
+  ],
   "main": "./extension.js",
   "scripts": {
     "lint": "eslint .",

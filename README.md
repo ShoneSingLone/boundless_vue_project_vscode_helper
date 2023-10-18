@@ -1,7 +1,27 @@
 
-# importVue 
+# boundless-vue-helper 
 
-- @/************`"@/layout/AppLayoutLeft.vue"`是当前业务App下的文件路径
-- _s/***********`"_s/libs/VueRouter.vue"`是共有模块的访问地址
+## alias：跳转对应文件
+- `package.json` 中添加 `useBoundlessVue` 才会启动插件探测
+- 通用的配置
+![](./extension/normal.png)
 
-> 需要在package.json中添加字段useImportVue:真值即可，后期会添加可配置路径跳转项
+```json
+"useBoundlessVue": {
+    "alias": {
+      "^/common/": "/static_vue2_element/common/"
+    }
+  }
+```
+- `@`是默认`business_**`文件夹下的资源（个人项目专用）
+    - 同名的`@/entry.vue` 在 `business_app/` 和 `business_doc/下`，跳转各自对应的文件
+
+## 规则
+
+- `useBoundlessVue`为真值即开启
+- 引号 " ' ` 
+- `.vue` 结尾
+
+**/"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/**
+
+开启后，引号内以`.vue`结尾的字符串都会被探测，满足alias映射要求的会自动拼接项目workspace rootPath
