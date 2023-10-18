@@ -21,6 +21,7 @@
   "scripts": {
     "lint": "eslint .",
     "pretest": "pnpm run lint",
+    "publish:patch": "vsce publish patch",
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {

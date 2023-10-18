@@ -1,9 +1,12 @@
 const { Position, Location, Uri } = require('vscode');
 
+
+
 class VueProvier {
     constructor(configs) {
         this._aliasArray = undefined;
         this.configs = configs;
+        this.ALIAS_PATH_CACHE = {};
     }
 
     get aliasArray() {
@@ -37,12 +40,14 @@ class VueProvier {
             .trim();
         // console.log("🚀 ALIAS_PATH:", ALIAS_PATH);
 
-        let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
-
-
-
 
         let normalizedAbsolutePath = (() => {
+
+            let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
+
+            if (this.ALIAS_PATH_CACHE[ALIAS_PATH]) {
+                return this.ALIAS_PATH_CACHE[ALIAS_PATH];
+            }
 
             if (isInBusiness) {
                 [SRC_ROOT_PATH, FILE_PATH] = path.split("business_");
@@ -74,6 +79,9 @@ class VueProvier {
         })();
 
         if (normalizedAbsolutePath) {
+            if (!this.ALIAS_PATH_CACHE[ALIAS_PATH]) {
+                this.ALIAS_PATH_CACHE[ALIAS_PATH] = normalizedAbsolutePath;
+            }
             return new Location(Uri.file(normalizedAbsolutePath), new Position(0, 0));
         }
 
