@@ -26,3 +26,9 @@
 **/"([^"]_)\.vue"|'([^']_)\.vue'|`([^`]\*)\.vue`/**
 
 开启后，引号内以`.vue`结尾的字符串都会被探测，满足alias映射要求的会自动拼接项目workspace rootPath
+
+## 代码片段
+
+- lodash
+- xsfc SFC 模板（基础款）
+- ximv _.$importVue
