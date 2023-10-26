@@ -22,14 +22,6 @@
         "path": "./snippets/xUI.json"
       },
       {
-        "language": "typescript",
-        "path": "./snippets/xUI.json"
-      },
-      {
-        "language": "javascriptreact",
-        "path": "./snippets/xUI.json"
-      },
-      {
         "language": "vue",
         "path": "./snippets/xUI.json"
       }

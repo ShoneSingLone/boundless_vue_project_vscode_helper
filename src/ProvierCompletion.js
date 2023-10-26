@@ -29,6 +29,7 @@ class ProvierCompletion {
   _configs;
 
   constructor(configs) {
+    this.ALIAS_PATH_CACHE = {};
     this._configs = configs;
     workspace.onDidChangeConfiguration((e) => {
       console.log("onDidChangeConfiguration", e);
@@ -53,127 +54,63 @@ class ProvierCompletion {
     document,
     /* TextDocument */ position /* CompletionContext */,
   ) {
-    const completionArray = [];
-
+    let completionArray = [];
     /* 未完成的就补充路径 */
-    const reg_undone = /"([^"]*)\/"|'([^']*)\/'|`([^`]*)\/`/;
-    let range = document.getWordRangeAtPosition(position, reg_undone);
+    const reg_undone_path = /"([^"]*)\/"|'([^']*)\/'|`([^`]*)\/`/;
+    let range = document.getWordRangeAtPosition(position, reg_undone_path);
     if (range) {
-      const ALIAS_PATH = document.getText(range).replace(/["|'|`]/g, "");
-
-      const { path: DOC_URI_PATH } = document.uri;
-
-      let normalizedAbsolutePath = getNormalizedAbsolutePath({
-        DOC_URI_PATH,
-        ALIAS_PATH,
-        ALIAS_ARRAY: this.cptAliasArray,
-        ROOT_PATH: this._configs.wsRoot || "",
-      });
-
-      const [, files] = await asyncAllDirAndFile([normalizedAbsolutePath]);
-
-      files
-        .filter((i) => /.vue$/.test(i))
-        .forEach((file) => {
-          let label = file
-            .replace(normalizedAbsolutePath, "")
-            .replaceAll(path.sep, "/")
-            .replace(/^\//, "");
-
-          const completionItem = new CompletionItem(
-            label,
-            CompletionItemKind.File,
-          );
-
-          completionArray.push(completionItem);
-        });
+      completionArray = await this.handlePathCompletion(document, range);
+    } else {
+      const reg_obj_prop = /\s(\w*)\./;
+      range = document.getWordRangeAtPosition(position, reg_obj_prop);
+      if (range) {
+        const variable = document.getText(range);
+        console.log("🚀 ~ file: ProvierCompletion.js:68", variable);
+        const completionItem = new CompletionItem(
+          variable,
+          CompletionItemKind.File
+        );
+        completionArray.push(completionItem);
+        // completionArray = await this.handlePathCompletion(document, range);
+      }
     }
-
     return completionArray;
   }
 
-  /* CompletionItem[] */
-  importCompletion(document /* TextDocument */, position /* Position */) {
-    return [undefined];
-    const importReg = /(import\s*){([^{}]*)}\s*from\s*(?:('(?:.*)'|"(?:.*)"))/g;
-    const content = document.getText();
-    const zeroBasedPosition = document.offsetAt(position);
-    const completionList = [];
-    const index = getIndexOfWorkspaceFolder(document.uri);
-    if (index === undefined) return completionList;
-    console.time("reg");
-    let execResult = null;
-    while ((execResult = importReg.exec(content))) {
-      const [, beforeLeftBrace, importIdentifiers] = execResult;
-      const index = execResult.index;
-      const leftBrachStart = index + beforeLeftBrace.length;
-      if (
-        zeroBasedPosition > leftBrachStart &&
-        zeroBasedPosition <= leftBrachStart + importIdentifiers.length + 1
-      ) {
-        break;
-      }
-    }
-    console.timeEnd("reg");
-    if (execResult) {
-      let [, , importIdentifiers, pathAlias] = execResult;
-      pathAlias = pathAlias.slice(1, -1);
-      const mostLike = mostLikeAlias(
-        this._aliasList[index],
-        pathAlias.split("/")[0],
-      );
+  async handlePathCompletion(document, range) {
+    const completionArray = [];
+    const ALIAS_PATH = document.getText(range).replace(/["|'|`]/g, "");
 
-      if (mostLike) {
-        const pathList = [
-          this._statMap[index][mostLike]["absolutePath"],
-          ...pathAlias.split("/").slice(1),
-        ];
-        let absolutePath = path.join(...pathList);
-        let extname = path.extname(absolutePath);
-        if (!extname) {
-          if (fs.existsSync(`${absolutePath}.js`)) {
-            extname = "js";
-          } else if (fs.existsSync(`${absolutePath}.ts`)) {
-            extname = "ts";
-          } else if (fs.existsSync(normalizePath(absolutePath))) {
-            absolutePath += "/index";
-            extname = "js";
-          }
-        }
-        if (extname === "js" || extname === "ts") {
-          console.time("ast");
-          const absolutePathWithExtname = absolutePath + "." + extname;
-          const file = fs.readFileSync(absolutePathWithExtname, {
-            encoding: "utf8",
-          });
-          // 这里是已经导入的函数或变量
-          const importIdentifierList = importIdentifiers
-            .split(",")
-            .filter(Boolean)
-            .map((id) => id.trim());
-          const exportIdentifierList = traverse(absolutePathWithExtname, file);
-          console.timeEnd("ast");
+    const { path: DOC_URI_PATH } = document.uri;
 
-          const retCompletionList = exportIdentifierList
-            .filter(
-              (token) => importIdentifierList.indexOf(token.identifier) === -1,
-            )
-            .map((token) => {
-              const completionItem = new CompletionItem(token.identifier);
-              completionItem.sortText = `0${token.identifier}`;
-              completionItem.kind =
-                token.kind === "function"
-                  ? CompletionItemKind.Function
-                  : CompletionItemKind.Property;
-              completionItem.documentation = token.description;
-              return completionItem;
-            });
-          completionList.push(...retCompletionList);
-        }
-      }
-    }
-    return completionList;
+    let normalizedAbsolutePath = getNormalizedAbsolutePath({
+      DOC_URI_PATH,
+      ALIAS_PATH,
+      ALIAS_ARRAY: this.cptAliasArray,
+      ROOT_PATH: this._configs.wsRoot || "",
+      ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE
+    });
+
+    const [, files] = await asyncAllDirAndFile([normalizedAbsolutePath]);
+
+    files
+      .filter((i) => /.vue$/.test(i))
+      .forEach((file) => {
+        let label = file
+          .replace(normalizedAbsolutePath, "")
+          .replaceAll(path.sep, "/")
+          .replace(/^\//, "");
+
+        const completionItem = new CompletionItem(
+          label,
+          CompletionItemKind.File
+        );
+
+        completionArray.push(completionItem);
+      });
+    return completionArray;
   }
 }
+
 
 exports.ProvierCompletion = ProvierCompletion;

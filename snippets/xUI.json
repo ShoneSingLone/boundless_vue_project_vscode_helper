@@ -10,7 +10,7 @@
   },
   "importVueSFC": {
     "prefix": "ximv",
-    "body": ["_.\\$importVue(\"$1\")"],
+    "body": ["const $2 = await _.\\$importVue(\"$1\")"],
     "description": "use _.$importVue load Vue SFC (custom)"
   },
   "add": {

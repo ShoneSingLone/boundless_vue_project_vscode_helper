@@ -37,7 +37,11 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
   ALIAS_PATH,
   ROOT_PATH,
   ALIAS_ARRAY,
+  ALIAS_PATH_CACHE
 }) {
+  if (ALIAS_PATH_CACHE[ALIAS_PATH]) {
+    return ALIAS_PATH_CACHE[ALIAS_PATH];
+  }
   let isInBusiness = /\/business_(.*)\//.test(DOC_URI_PATH);
   let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
   let normalizedAbsolutePath = (() => {
@@ -97,3 +101,5 @@ exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
 };
 
 exports.last = (arr) => (arr.length > 0 ? arr[arr.length - 1] : "");
+
+

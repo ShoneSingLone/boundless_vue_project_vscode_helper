@@ -2,9 +2,9 @@
 
 ## alias：跳转对应文件
 
-- `package.json` 中添加 `useBoundlessVue` 才会启动插件探测
+- configs.boundlessHelper.js 才会启动插件探测 (package.json同目录)
 - 通用的配置
-  ![](./extension/normal.png)
+  ![](extension/20231026113734.png)
 
 ```json
 "useBoundlessVue": {
@@ -19,7 +19,6 @@
 
 ## 规则
 
-- `useBoundlessVue`为真值即开启
 - 引号 " ' `
 - `.vue` 结尾
 
@@ -32,3 +31,10 @@
 - lodash
 - xsfc SFC 模板（基础款）
 - ximv _.$importVue
+
+
+### API
+
+>[vscode-path-alias](https://github.com/IWANABETHATGUY/vscode-path-alias)
+
+VSCode CodeActionProvider 是一个用于提供代码修复功能的插件。它可以帮助用户自动修复代码中的错误、提供代码重构建议以及其他编辑器建议。

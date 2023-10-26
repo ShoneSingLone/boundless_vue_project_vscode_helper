@@ -2,11 +2,9 @@ const { Position, Location, Uri, Disposable } = require("vscode");
 const { getNormalizedAbsolutePath } = require("./utils");
 
 exports.ProvierPathAlias = class ProvierPathAlias {
-  _aliasArray;
-  _configs;
-  _disposable;
 
   constructor(configs) {
+    this.ALIAS_PATH_CACHE = {};
     this._configs = configs;
     this._disposable = Disposable.from();
   }
@@ -49,6 +47,7 @@ exports.ProvierPathAlias = class ProvierPathAlias {
       ALIAS_PATH,
       ALIAS_ARRAY: this.cptAliasArray,
       ROOT_PATH: this._configs.wsRoot || "",
+      ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE
     });
 
     if (normalizedAbsolutePath) {
