@@ -32,10 +32,8 @@
   ],
   "main": "./extension.js",
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "pnpm run lint",
-    "publish:patch": "vsce publish patch",
-    "test": "node ./test/runTest.js"
+    "package": "vsce package",
+    "publish:patch": "vsce publish patch"
   },
   "devDependencies": {
     "@types/vscode": "^1.83.0",
