@@ -1,5 +1,7 @@
 # boundless-vue-helper
 
+vsce publish patch, minor, or major
+
 ## alias：跳转对应文件
 
 - configs.boundlessHelper.js 才会启动插件探测 (package.json同目录)
