@@ -12,8 +12,29 @@
     "url": "https://github.com/ShoneSingLone/boundless_vue_project_vscode_helper"
   },
   "categories": [
-    "Other"
+    "Snippets",
+    "Programming Languages"
   ],
+  "contributes": {
+    "snippets": [
+      {
+        "language": "javascript",
+        "path": "./snippets/xUI.json"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/xUI.json"
+      },
+      {
+        "language": "javascriptreact",
+        "path": "./snippets/xUI.json"
+      },
+      {
+        "language": "vue",
+        "path": "./snippets/xUI.json"
+      }
+    ]
+  },
   "activationEvents": [
     "onLanguage:vue"
   ],
