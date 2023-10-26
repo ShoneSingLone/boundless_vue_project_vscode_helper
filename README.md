@@ -1,5 +1,8 @@
 # boundless-vue-helper
 
+npm install -g @vscode/vsce
+vsce package
+vsce login
 vsce publish patch, minor, or major
 
 ## alias：跳转对应文件

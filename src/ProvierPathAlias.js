@@ -11,7 +11,7 @@ exports.ProvierPathAlias = class ProvierPathAlias {
 
   get cptAliasArray() {
     if (!this._configs?._aliasArray) {
-      const { alias } = this._configs.useBoundlessVue || {};
+      const { alias } = this._configs || {};
       if (alias) {
         this._configs._aliasArray = Object.entries(alias);
       }
