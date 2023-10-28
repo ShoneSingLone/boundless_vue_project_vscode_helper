@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 - Initial release
 - 添加缓存
+# 2023年10月28日
+- xsfc boundless Vue 的SFC 文件模板
 
 # 2023年10月26日
 
@@ -13,4 +15,3 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - 代码片段
     - ximv _.$importVue
     - xsfc boundless Vue 的SFC 文件模板
-
