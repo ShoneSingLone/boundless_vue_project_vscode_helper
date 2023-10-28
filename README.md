@@ -1,4 +1,4 @@
-# boundless-vue-helper
+# [boundless-vue-helper](https://marketplace.visualstudio.com/items?itemName=ShoneSingLone.boundless-vue-helper)
 
 npm install -g @vscode/vsce
 vsce package
