@@ -19,7 +19,10 @@ function activate(context) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   try {
-    let configs = require(path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js"));
+    let configs = require(path.resolve(
+      vc.workspace.rootPath,
+      "configs.boundlessHelper.js"
+    ));
     // @ts-ignore
     configs.wsRoot = vc.workspace.rootPath;
     // @ts-ignore
@@ -28,15 +31,13 @@ function activate(context) {
     initCompletion({ context, configs });
 
     setTimeout(() => {
-      vc.window.showInformationMessage(
-        `"boundless-vue-helper" is now active!`,
-      );
+      vc.window.showInformationMessage(`"boundless-vue-helper" is now active!`);
     }, 1000);
-  } catch (error) { }
+  } catch (error) {}
 }
 
 // This method is called when your extension is deactivated
-function deactivate() { }
+function deactivate() {}
 
 /* function initCodeActionn({ context, configs }) {
     const subscription = vc.languages.registerDefinitionProvider(
@@ -47,8 +48,11 @@ function deactivate() { }
 } */
 function initPathAlias({ context, configs }) {
   const subscription = vc.languages.registerDefinitionProvider(
-    [{ language: "vue", scheme: "file" }],
-    new ProvierPathAlias(configs),
+    [
+      { scheme: "file", language: "vue" },
+      { scheme: "file", language: "javascript" },
+    ],
+    new ProvierPathAlias(configs)
   );
   context.subscriptions.push(subscription);
 }

@@ -28,7 +28,8 @@
     ]
   },
   "activationEvents": [
-    "onLanguage:vue"
+    "onLanguage:vue",
+    "onLanguage:javascript"
   ],
   "main": "./extension.js",
   "scripts": {

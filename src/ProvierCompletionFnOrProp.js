@@ -56,7 +56,7 @@ class ProvierCompletion {
     const importReg = /(import\s*){([^{}]*)}\s*from\s*(?:('(?:.*)'|"(?:.*)"))/g;
     const content = document.getText();
     const CompletionItemArray = [];
-    console.time('reg');
+    console.time("reg");
     const aliasInfoMap = new Map();
     let execResult = null;
     const importIdentifierSet = new Set();
@@ -68,7 +68,7 @@ class ProvierCompletion {
       const braceEnd =
         index + beforeLeftBrace.length + importIdentifiers.length + 1;
 
-      importIdentifiers.split(',').forEach(identifier => {
+      importIdentifiers.split(",").forEach((identifier) => {
         const normalizedIdentifier = identifier.trim();
         if (normalizedIdentifier) {
           importIdentifierSet.add(identifier.trim());
@@ -79,19 +79,16 @@ class ProvierCompletion {
       });
       aliasInfoMap.set(pathAlias, {
         braceEnd,
-        empty
+        empty,
       });
     }
     const range = document.getWordRangeAtPosition(position);
 
     if (range) {
-      
     }
 
     return CompletionItemArray;
   }
-
 }
-
 
 exports.ProvierCompletion = ProvierCompletion;

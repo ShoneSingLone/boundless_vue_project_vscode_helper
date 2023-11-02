@@ -52,7 +52,7 @@ class ProvierCompletion {
 
   async provideCompletionItems(
     document,
-    /* TextDocument */ position /* CompletionContext */,
+    /* TextDocument */ position /* CompletionContext */
   ) {
     let completionArray = [];
     /* 未完成的就补充路径 */
@@ -88,7 +88,7 @@ class ProvierCompletion {
       ALIAS_PATH,
       ALIAS_ARRAY: this.cptAliasArray,
       ROOT_PATH: this._configs.wsRoot || "",
-      ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE
+      ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE,
     });
 
     const [, files] = await asyncAllDirAndFile([normalizedAbsolutePath]);
@@ -111,6 +111,5 @@ class ProvierCompletion {
     return completionArray;
   }
 }
-
 
 exports.ProvierCompletion = ProvierCompletion;

@@ -23,14 +23,14 @@ exports.CodeAction = class CodeAction {
         addCodeActionCommand(
           "Add Import for " + words[0],
           "editor.action.addImportStatement",
-          range,
+          range
         );
       }
     } else {
       addCodeActionCommand(
         "Add Import for " + document.getText(),
         "editor.action.addImportStatement",
-        undefined,
+        undefined
       );
     }
 

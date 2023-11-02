@@ -1,8 +1,8 @@
 const { Position, Location, Uri, Disposable } = require("vscode");
 const { getNormalizedAbsolutePath } = require("./utils");
+const path = require("path");
 
 exports.ProvierPathAlias = class ProvierPathAlias {
-
   constructor(configs) {
     this.ALIAS_PATH_CACHE = {};
     this._configs = configs;
@@ -24,18 +24,27 @@ exports.ProvierPathAlias = class ProvierPathAlias {
   }
 
   async provideDefinition(document, position) {
+    let tryJs;
     /* @ts-ignore */
     const { path: DOC_URI_PATH } = document.uri;
-    const range = document.getWordRangeAtPosition(
+    let range = document.getWordRangeAtPosition(
       position,
-      /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/,
+      /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/
     );
 
     if (!range) {
-      return;
+      tryJs = true;
+      range = document.getWordRangeAtPosition(
+        position,
+        /"([^"]*)"|'([^']*)'|`([^`]*)`/
+      );
+
+      if (!range) {
+        return;
+      }
     }
 
-    const ALIAS_PATH = document
+    let ALIAS_PATH = document
       .getText(range)
       .replace(/["|'|`]/g, "")
       .trim();
@@ -47,7 +56,7 @@ exports.ProvierPathAlias = class ProvierPathAlias {
       ALIAS_PATH,
       ALIAS_ARRAY: this.cptAliasArray,
       ROOT_PATH: this._configs.wsRoot || "",
-      ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE
+      ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE,
     });
 
     if (normalizedAbsolutePath) {

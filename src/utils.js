@@ -5,7 +5,7 @@ const path = require("path");
 exports.getInsertPathRange = function getInsertPathRange(
   range,
   document,
-  length,
+  length
 ) {
   const numberOfEndPoint = document.offsetAt(range.end);
   const end = document.positionAt(numberOfEndPoint - 1);
@@ -37,8 +37,13 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
   ALIAS_PATH,
   ROOT_PATH,
   ALIAS_ARRAY,
-  ALIAS_PATH_CACHE
+  ALIAS_PATH_CACHE,
 }) {
+  const ext = path.extname(ALIAS_PATH);
+  if (!ext) {
+    ALIAS_PATH += ".js";
+  }
+
   if (ALIAS_PATH_CACHE[ALIAS_PATH]) {
     return ALIAS_PATH_CACHE[ALIAS_PATH];
   }
@@ -54,7 +59,7 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
       /* 讲道理，_s的文件不会访问business_下的文件 */
       return String(ALIAS_PATH).replace(
         /^@/,
-        `${SRC_ROOT_PATH}/business_${APP_NAME}`,
+        `${SRC_ROOT_PATH}/business_${APP_NAME}`
       );
     }
 
@@ -73,14 +78,14 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
     }
   })();
   return path.normalize(
-    normalizedAbsolutePath.split("/").filter(Boolean).join("/"),
+    normalizedAbsolutePath.split("/").filter(Boolean).join("/")
   );
 };
 
 exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
   array_all,
   array_dir = [],
-  array_file = [],
+  array_file = []
 ) {
   const path_current = array_all.pop();
   const stat = await fs.stat(path_current);
@@ -88,7 +93,7 @@ exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
     array_dir.push(path.normalize(path_current));
     const dirs = await fs.readdir(path_current);
     const path_sub_dirs = dirs.map((dirName) =>
-      path.resolve(path_current, dirName),
+      path.resolve(path_current, dirName)
     );
     array_all = array_all.concat(path_sub_dirs);
   } else {
@@ -101,5 +106,3 @@ exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
 };
 
 exports.last = (arr) => (arr.length > 0 ? arr[arr.length - 1] : "");
-
-
