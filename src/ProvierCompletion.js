@@ -65,10 +65,10 @@ class ProvierCompletion {
       range = document.getWordRangeAtPosition(position, reg_obj_prop);
       if (range) {
         const variable = document.getText(range);
-        console.log("🚀 ~ file: ProvierCompletion.js:68", variable);
+        console.log("🚀 ~ file: ProvierCompletion.js:68", String(variable).trim());
         const completionItem = new CompletionItem(
-          variable,
-          CompletionItemKind.File,
+          "variable",
+          CompletionItemKind.Property,
         );
         completionArray.push(completionItem);
         // completionArray = await this.handlePathCompletion(document, range);

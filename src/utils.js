@@ -31,7 +31,11 @@ exports.getIndexOfWorkspaceFolder = function getIndexOfWorkspaceFolder(uri) {
 exports.isObject = function isObject(obj) {
   return Object.prototype.toString.call(obj) === "[object Object]";
 };
-
+/**
+ * 获取可执行路径，尝试添加js后缀
+ * @param {*} param0 
+ * @returns 
+ */
 exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
   DOC_URI_PATH,
   ALIAS_PATH,

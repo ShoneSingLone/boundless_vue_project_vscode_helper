@@ -5,6 +5,8 @@ const fs = require("fs");
 const path = require("path");
 const { ProvierPathAlias } = require("./src/ProvierPathAlias.js");
 const { ProvierCompletion } = require("./src/ProvierCompletion.js");
+const { activateIntellisense, deactivateIntellisense } = require("./src/intellisense/client/client.js");
+
 // const { CodeAction } = require("./src/CodeAction.js");
 
 // This method is called when your extension is activated
@@ -28,15 +30,21 @@ function activate(context) {
     console.log('"boundless-vue-helper" is now active!', configs);
     initPathAlias({ context, configs });
     initCompletion({ context, configs });
+    activateIntellisense({ context, configs });
 
     setTimeout(() => {
       vc.window.showInformationMessage(`"boundless-vue-helper" is now active!`);
     }, 1000);
-  } catch (error) {}
+  } catch (error) { }
 }
 
 // This method is called when your extension is deactivated
-function deactivate() {}
+function deactivate() {
+  try {
+    require(path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js"));
+    deactivateIntellisense();
+  } catch (error) { }
+}
 
 /* function initCodeActionn({ context, configs }) {
     const subscription = vc.languages.registerDefinitionProvider(
@@ -55,6 +63,7 @@ function initPathAlias({ context, configs }) {
   );
   context.subscriptions.push(subscription);
 }
+
 
 function initCompletion({ context, configs }) {
   const subscription = vc.languages.registerCompletionItemProvider(
