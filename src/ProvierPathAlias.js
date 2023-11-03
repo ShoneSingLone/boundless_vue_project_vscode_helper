@@ -29,14 +29,14 @@ exports.ProvierPathAlias = class ProvierPathAlias {
     const { path: DOC_URI_PATH } = document.uri;
     let range = document.getWordRangeAtPosition(
       position,
-      /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/
+      /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/,
     );
 
     if (!range) {
       tryJs = true;
       range = document.getWordRangeAtPosition(
         position,
-        /"([^"]*)"|'([^']*)'|`([^`]*)`/
+        /"([^"]*)"|'([^']*)'|`([^`]*)`/,
       );
 
       if (!range) {

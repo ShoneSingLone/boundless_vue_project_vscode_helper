@@ -52,7 +52,7 @@ class ProvierCompletion {
 
   async provideCompletionItems(
     document,
-    /* TextDocument */ position /* CompletionContext */
+    /* TextDocument */ position /* CompletionContext */,
   ) {
     let completionArray = [];
     /* 未完成的就补充路径 */
@@ -68,7 +68,7 @@ class ProvierCompletion {
         console.log("🚀 ~ file: ProvierCompletion.js:68", variable);
         const completionItem = new CompletionItem(
           variable,
-          CompletionItemKind.File
+          CompletionItemKind.File,
         );
         completionArray.push(completionItem);
         // completionArray = await this.handlePathCompletion(document, range);
@@ -103,7 +103,7 @@ class ProvierCompletion {
 
         const completionItem = new CompletionItem(
           label,
-          CompletionItemKind.File
+          CompletionItemKind.File,
         );
 
         completionArray.push(completionItem);

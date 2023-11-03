@@ -19,10 +19,9 @@ function activate(context) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   try {
-    let configs = require(path.resolve(
-      vc.workspace.rootPath,
-      "configs.boundlessHelper.js"
-    ));
+    let configs = require(
+      path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js"),
+    );
     // @ts-ignore
     configs.wsRoot = vc.workspace.rootPath;
     // @ts-ignore
@@ -52,7 +51,7 @@ function initPathAlias({ context, configs }) {
       { scheme: "file", language: "vue" },
       { scheme: "file", language: "javascript" },
     ],
-    new ProvierPathAlias(configs)
+    new ProvierPathAlias(configs),
   );
   context.subscriptions.push(subscription);
 }
@@ -62,7 +61,7 @@ function initCompletion({ context, configs }) {
     [{ language: "vue", scheme: "file" }],
     new ProvierCompletion(configs),
     "/",
-    "."
+    ".",
   );
   context.subscriptions.push(subscription);
 }
