@@ -31,10 +31,6 @@ function activate(context) {
     initPathAlias({ context, configs });
     initCompletion({ context, configs });
     activateIntellisense({ context, configs });
-
-    setTimeout(() => {
-      vc.window.showInformationMessage(`"boundless-vue-helper" is now active!`);
-    }, 1000);
   } catch (error) { }
 }
 

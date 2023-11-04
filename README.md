@@ -22,12 +22,14 @@ vsce publish patch, minor, or major
 - `@`是默认`business_**`文件夹下的资源（个人项目专用）
   - 同名的`@/entry.vue` 在 `business_app/` 和 `business_doc/下`，跳转各自对应的文件
 
-## 规则
+## alias跳转规则 
 
-- 引号 " ' `
-- `.vue` 结尾
+- 引号 " ' ` 内部的 会尝试添加js后缀，如果是bounndless的组件，肯定是带.vue后缀的
 
-**/"([^"]_)\.vue"|'([^']_)\.vue'|`([^`]\*)\.vue`/**
+## _.$importVue
+_.$importVue导入的是vue单文件。默认导出是default 文件名就是变量名
+  - 目前只支持单个导出；
+  - 多个导出自己手工添加吧
 
 开启后，引号内以`.vue`结尾的字符串都会被探测，满足 alias 映射要求的会自动拼接项目 workspace rootPath
 
@@ -37,8 +39,19 @@ vsce publish patch, minor, or major
 - xsfc SFC 模板（基础款）
 - ximv \_.$importVue
 
+
 ### API
 
 > [vscode-path-alias](https://github.com/IWANABETHATGUY/vscode-path-alias)
 
 VSCode CodeActionProvider 是一个用于提供代码修复功能的插件。它可以帮助用户自动修复代码中的错误、提供代码重构建议以及其他编辑器建议。
+
+### context.workspaceState.get('boundlessAutoImportConfigs')
+
+```js
+//获取配置信息
+context.workspaceState.get('boundlessAutoImportConfigs');
+//更新
+context.workspaceState.update('boundlessAutoImportConfigs', {});
+```
+
