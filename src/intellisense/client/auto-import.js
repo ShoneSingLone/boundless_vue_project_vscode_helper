@@ -21,7 +21,7 @@ class AutoImport {
 		);
 		let completetion = vscode.languages.registerCompletionItemProvider(
 			["javascript", "vue"],
-			new ImportCompletion(this.context),
+			new ImportCompletion({ this.context }),
 			""
 		);
 

@@ -1,19 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const { NodeUpload } = require("./node-upload");
 const vscode = require("vscode");
 const { ImportDb } = require("./import-db");
-const { AutoImport } = require("./auto-import");
 const path = require("path");
 
 class ImportScanner {
 	constructor(configs) {
-		const { findFilesInclude, showNotifications, higherOrderComponents } =
-			configs;
 		this.configs = configs;
+		const { findFilesInclude, businessPrefix, commonPrefix } = configs;
+		this.commonPrefix = commonPrefix;
+		this.businessPrefix = businessPrefix;
 		this.findFilesInclude = findFilesInclude;
-		this.showNotifications = showNotifications;
-		this.higherOrderComponents = higherOrderComponents;
 	}
 	scan(request) {
 		this.scanStarted = new Date();
@@ -54,6 +51,24 @@ class ImportScanner {
 		const fileName = path.basename(fileInfo.path);
 		const ext = path.extname(fileInfo.path);
 		const isDefault = true;
+
+		const [importURL, appName] = (() => {
+			if (fileInfo.path.indexOf(this.businessPrefix) > -1) {
+				let url = fileInfo.path.split(this.businessPrefix)[1];
+				url = url.split("/");
+				const appName = url[0];
+				url[0] = "@";
+				return [url.join("/"), appName];
+			}
+			if (fileInfo.path.indexOf(this.commonPrefix) > -1) {
+				const url = fileInfo.path.split(this.commonPrefix)[1];
+				return [`/common/${url}`];
+			}
+
+		})();
+		fileInfo.importURL = importURL;
+		fileInfo.appName = appName;
+
 		ImportDb.saveImport(
 			fileName.replace(ext, ""),
 			fileContentString,

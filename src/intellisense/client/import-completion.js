@@ -5,14 +5,13 @@ const { ImportDb } = require("./import-db");
 const { ImportFixer } = require("./import-fixer");
 const vscode = require("vscode");
 class ImportCompletion {
-	constructor(context) {
+	constructor({ context, configs }) {
+		this.configs = configs;
 		this.context = context;
 		let fixer = vscode.commands.registerCommand(
 			"shone.sing.lone.resolveImport",
 			args => {
-				new ImportFixer().fix(args.document, undefined, undefined, undefined, [
-					args.imp
-				]);
+				new ImportFixer({ configs }).fix(args);
 			}
 		);
 		context.subscriptions.push(fixer);
@@ -37,19 +36,17 @@ class ImportCompletion {
 			return resolve(suggestions);
 		});
 	}
-	buildCompletionItem(imp, document) {
-		const label = camelCase(imp.fileName);
+	buildCompletionItem(importObj, document) {
+		const label = camelCase(importObj.fileName);
 		return {
-			label,
+			label: `${label}`,
 			kind: vscode.CompletionItemKind.Variable,
-			detail: `Boundless importVue`,
-			documentation: `const ${label} = _.$importVue("${imp.getPath(
-				document
-			)}");`,
+			detail: `Boundless importVue ${importObj.fileInfo.appName || ""}`,
+			documentation: `const ${label} = _.$importVue("${importObj.fileInfo.importURL}");`,
 			command: {
 				title: "AI: Autocomplete",
 				command: "shone.sing.lone.resolveImport",
-				arguments: [{ imp, document }]
+				arguments: [{ importObj, document }]
 			}
 		};
 	}

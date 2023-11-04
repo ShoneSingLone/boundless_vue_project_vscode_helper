@@ -14,13 +14,13 @@ class ImportObject {
 	 */
 	constructor(fileName, fileInfo, isDefault, discovered = false) {
 		this.fileName = fileName;
-		this.file = fileInfo;
+		this.fileInfo = fileInfo;
 		this.isDefault = isDefault;
 		this.discovered = discovered;
 	}
 	getPath(document) {
 		if (this.discovered) {
-			return this.file.fsPath;
+			return this.fileInfo.fsPath;
 		}
 		const absolute = vscode.workspace
 			.getConfiguration("autoimport")
@@ -33,7 +33,7 @@ class ImportObject {
 			basePath = PathHelper.joinPaths(vscode.workspace.rootPath, sourceRoot);
 		}
 		return PathHelper.normalisePath(
-			PathHelper.getRelativePath(basePath, this.file.fsPath),
+			PathHelper.getRelativePath(basePath, this.fileInfo.fsPath),
 			absolute
 		);
 	}
@@ -57,7 +57,7 @@ class ImportDb {
 			if (index !== -1) {
 				ImportDb.imports.splice(index, 1);
 			}
-		} catch (error) {}
+		} catch (error) { }
 	}
 	/**
 	 * @description
