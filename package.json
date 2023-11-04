@@ -1,56 +1,56 @@
 {
-  "icon": "extension/code.png",
-  "name": "boundless-vue-helper",
-  "displayName": "boundless Vue Helper",
-  "description": "boundless Vue 项目辅助 扩展。 任意符合正则的字符串，别名跳转。在package.json同目录里面添加\"configs.boundlessHelper.js\" module.exports = {alias:{key是正则，value是用于 replace(正则,value) 部分}}",
-  "publisher": "ShoneSingLone",
-  "version": "0.0.11",
-  "engines": {
-    "vscode": "^1.83.0"
-  },
-  "repository": {
-    "url": "https://github.com/ShoneSingLone/boundless_vue_project_vscode_helper"
-  },
-  "categories": [
-    "Snippets",
-    "Programming Languages"
-  ],
-  "contributes": {
-    "snippets": [
-      {
-        "language": "javascript",
-        "path": "./snippets/xUI.json"
-      },
-      {
-        "language": "vue",
-        "path": "./snippets/xUI.json"
-      }
-    ]
-  },
-  "activationEvents": [
-    "onLanguage:vue",
-    "onLanguage:javascript"
-  ],
-  "main": "./extension.js",
-  "scripts": {
-    "package": "vsce package",
-    "publish:patch": "vsce publish patch"
-  },
-  "dependencies": {
-    "lodash": "4.17.4",
-    "node-json-db": "0.7.3",
-    "vscode-languageclient": "^9.0.1",
-    "vscode-languageserver": "^9.0.1",
-    "vscode-languageserver-textdocument": "^1.0.11"
-  },
-  "devDependencies": {
-    "@types/mocha": "^10.0.2",
-    "@types/node": "18.x",
-    "@types/vscode": "^1.83.0",
-    "@vscode/test-electron": "^2.3.4",
-    "eslint": "^8.50.0",
-    "glob": "^10.3.3",
-    "mocha": "^10.2.0",
-    "typescript": "^5.2.2"
-  }
+	"icon": "extension/code.png",
+	"name": "boundless-vue-helper",
+	"displayName": "boundless Vue Helper",
+	"description": "boundless Vue 项目辅助 扩展。 任意符合正则的字符串，别名跳转。在package.json同目录里面添加\"configs.boundlessHelper.js\" module.exports = {alias:{key是正则，value是用于 replace(正则,value) 部分}}",
+	"publisher": "ShoneSingLone",
+	"version": "0.0.11",
+	"engines": {
+		"vscode": "^1.83.0"
+	},
+	"repository": {
+		"url": "https://github.com/ShoneSingLone/boundless_vue_project_vscode_helper"
+	},
+	"categories": [
+		"Snippets",
+		"Programming Languages"
+	],
+	"contributes": {
+		"snippets": [
+			{
+				"language": "javascript",
+				"path": "./snippets/xUI.json"
+			},
+			{
+				"language": "vue",
+				"path": "./snippets/xUI.json"
+			}
+		]
+	},
+	"activationEvents": [
+		"onLanguage:vue",
+		"onLanguage:javascript"
+	],
+	"main": "./extension.js",
+	"scripts": {
+		"package": "vsce package",
+		"publish:patch": "vsce publish patch"
+	},
+	"dependencies": {
+		"lodash": "4.17.4",
+		"node-json-db": "0.7.3",
+		"vscode-languageclient": "^9.0.1",
+		"vscode-languageserver": "^9.0.1",
+		"vscode-languageserver-textdocument": "^1.0.11"
+	},
+	"devDependencies": {
+		"@types/mocha": "^10.0.2",
+		"@types/node": "18.x",
+		"@types/vscode": "^1.83.0",
+		"@vscode/test-electron": "^2.3.4",
+		"eslint": "^8.50.0",
+		"glob": "^10.3.3",
+		"mocha": "^10.2.0",
+		"typescript": "^5.2.2"
+	}
 }
