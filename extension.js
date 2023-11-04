@@ -2,11 +2,7 @@ const vc = require("vscode");
 const path = require("path");
 const { ProvierPathAlias } = require("./src/ProvierPathAlias.js");
 const { ProvierCompletion } = require("./src/ProvierCompletion.js");
-const {
-	activateIntellisense
-} = require("./src/intellisense/client/client.js");
-
-
+const { activateIntellisense } = require("./src/intellisense/client/client.js");
 
 function activate(context) {
 	try {
@@ -15,14 +11,18 @@ function activate(context) {
 			"configs.boundlessHelper.js"
 		));
 		configs.wsRoot = vc.workspace.rootPath;
-		console.log('"boundless-vue-helper" is now active!', configs, vc.workspace.rootPath);
+		console.log(
+			'"boundless-vue-helper" is now active!',
+			configs,
+			vc.workspace.rootPath
+		);
 		initPathAlias({ context, configs });
 		initCompletion({ context, configs });
 		activateIntellisense({ context, configs });
-	} catch (error) { }
+	} catch (error) {}
 }
 
-function deactivate() { }
+function deactivate() {}
 
 function initPathAlias({ context, configs }) {
 	const subscription = vc.languages.registerDefinitionProvider(

@@ -57,7 +57,7 @@ class ImportDb {
 			if (index !== -1) {
 				ImportDb.imports.splice(index, 1);
 			}
-		} catch (error) { }
+		} catch (error) {}
 	}
 	/**
 	 * @description

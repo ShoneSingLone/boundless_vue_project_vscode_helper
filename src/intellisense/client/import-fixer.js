@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const vscode = require("vscode");
 const path = require("path");
+const { camelCase } = require("lodash");
 class ImportFixer {
 	constructor({ configs }) {
 		this.businessPrefix = configs.autoImport.businessPrefix;
@@ -17,12 +18,10 @@ class ImportFixer {
 		const path = importObj.fileInfo.importURL;
 		if (!this.alreadyResolved(document, path)) {
 			const textIndexOf = document.getText().indexOf("export default async");
-			let insertPosition = document.positionAt(textIndexOf);
-			debugger;
-
+			const positionAt = document.positionAt(textIndexOf);
 			edit.insert(
 				document.uri,
-				insertPosition,
+				positionAt.translate(1, 0),
 				this.createImportStatement(importObj.fileName, path)
 			);
 		}
@@ -36,7 +35,7 @@ class ImportFixer {
 		return currentDoc.includes(path);
 	}
 	createImportStatement(fileName, path) {
-		return `const ${fileName} = _.$importVue("${path}");`;
+		return `\tconst ${camelCase(fileName)} = _.$importVue("${path}");\n`;
 	}
 }
 exports.ImportFixer = ImportFixer;

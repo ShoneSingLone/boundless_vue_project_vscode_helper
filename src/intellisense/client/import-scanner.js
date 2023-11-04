@@ -64,7 +64,6 @@ class ImportScanner {
 				const url = fileInfo.path.split(this.commonPrefix)[1];
 				return [`/common/${url}`];
 			}
-
 		})();
 		fileInfo.importURL = importURL;
 		fileInfo.appName = appName;
