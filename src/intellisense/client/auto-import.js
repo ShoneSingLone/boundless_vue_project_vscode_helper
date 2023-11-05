@@ -1,6 +1,6 @@
 "use strict";
 const vscode = require("vscode");
-const { ImportAction } = require("./import-action");
+// const { ImportAction } = require("./import-action");
 const { ImportCompletion } = require("./import-completion");
 const { ImportFixer } = require("./import-fixer");
 const { ImportScanner } = require("./import-scanner");
@@ -15,10 +15,6 @@ class AutoImport {
 		return folder !== undefined;
 	}
 	attachCommands() {
-		let codeActionFixer = vscode.languages.registerCodeActionsProvider(
-			["javascript", "vue"],
-			new ImportAction()
-		);
 		let completetion = vscode.languages.registerCompletionItemProvider(
 			["javascript", "vue"],
 			new ImportCompletion(this),
@@ -36,12 +32,7 @@ class AutoImport {
 			}
 		);
 
-		this.context.subscriptions.push(
-			importScanner,
-			importFixer,
-			codeActionFixer,
-			completetion
-		);
+		this.context.subscriptions.push(importScanner, importFixer, completetion);
 	}
 	attachFileWatcher() {
 		let glob = this.configs.autoImport.findFilesInclude;

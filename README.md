@@ -1,4 +1,6 @@
-# [boundless-vue-helper](https://marketplace.visualstudio.com/items?itemName=ShoneSingLone.boundless-vue-helper)
+# [主项目 boundless_vue_project](https://github.com/ShoneSingLone/boundless_vue_project)
+
+## [配套插件 boundless-vue-helper](https://marketplace.visualstudio.com/items?itemName=ShoneSingLone.boundless-vue-helper)
 
 npm install -g @vscode/vsce
 vsce package
@@ -13,14 +15,14 @@ vsce publish patch, minor, or major
 
 ```js
 module.exports = {
-    "alias": {
-        "^/common/": "/static_vue2/common/"
-    },
-    "autoImport": {
-        findFilesInclude: "static_vue2/**/*.vue",
-        businessPrefix: "static_vue2/business_",
-        commonPrefix: "static_vue2/common/",
-    }
+	alias: {
+		"^/common/": "/static_vue2/common/"
+	},
+	autoImport: {
+		findFilesInclude: "static_vue2/**/*.vue",
+		businessPrefix: "static_vue2/business_",
+		commonPrefix: "static_vue2/common/"
+	}
 };
 ```
 

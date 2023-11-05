@@ -50,10 +50,7 @@ class ProvierCompletion {
 		return this._configs._aliasArray;
 	}
 
-	async provideCompletionItems(
-		document,
-		/* TextDocument */ position /* CompletionContext */
-	) {
+	async provideCompletionItems(document, position) {
 		let completionArray = [];
 		/* 未完成的就补充路径 */
 		const reg_undone_path = /"([^"]*)\/"|'([^']*)\/'|`([^`]*)\/`/;
@@ -61,16 +58,13 @@ class ProvierCompletion {
 		if (range) {
 			completionArray = await this.handlePathCompletion(document, range);
 		} else {
-			const reg_obj_prop = /\s(\w*)\./;
+			const reg_obj_prop = /\w/;
 			range = document.getWordRangeAtPosition(position, reg_obj_prop);
 			if (range) {
 				const variable = document.getText(range);
-				console.log(
-					"🚀 ~ file: ProvierCompletion.js:68",
-					String(variable).trim()
-				);
+
 				const completionItem = new CompletionItem(
-					"variable",
+					`_.$${variable}`,
 					CompletionItemKind.Property
 				);
 				completionArray.push(completionItem);

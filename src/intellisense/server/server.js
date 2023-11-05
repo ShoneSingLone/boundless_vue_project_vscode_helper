@@ -84,7 +84,7 @@ connection.onInitialized(() => {
 
 // The example settings
 /* interface ExampleSettings {
-    maxNumberOfProblems: number;
+	maxNumberOfProblems: number;
 } */
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
@@ -197,15 +197,14 @@ connection.onDidChangeWatchedFiles(_change => {
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	/* TextDocumentPositionParams */
-	_textDocumentPosition => {
+	({ context, position, textDocument }) => {
 		console.log(
 			"🚀 ~ file: server.js:201 ~ _textDocumentPosition:",
-			_textDocumentPosition
+			context,
+			position,
+			textDocument
 		);
-		/* CompletionItem[]  */
-		// The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-		// info and always provide the same completion items.
+
 		return [
 			{
 				label: "TypeScript",
