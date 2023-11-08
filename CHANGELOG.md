@@ -4,14 +4,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-- Initial release
-- 添加缓存
+## 2023 年 11 月 5 日
 
-# 2023 年 10 月 28 日
+- [SignatureHelpProvider](https://code.visualstudio.com/api/references/vscode-api#SignatureHelpProvider)
+
+## 2023 年 11 月 5 日
+
+- 加入自动导入
+
+## 2023 年 10 月 28 日
 
 - xsfc boundless Vue 的 SFC 文件模板
 
-# 2023 年 10 月 26 日
+## 2023 年 10 月 26 日
 
 - 提示路径
 - 代码片段
