@@ -4,12 +4,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 2023年11月8日
+
+- fix DefinitionPathAlias 路径补全
+
 ## 2023 年 11 月 5 日
 
 - [SignatureHelpProvider](https://code.visualstudio.com/api/references/vscode-api#SignatureHelpProvider)
-
-## 2023 年 11 月 5 日
-
 - 加入自动导入
 
 ## 2023 年 10 月 28 日

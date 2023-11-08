@@ -80,13 +80,14 @@ class ProvierCompletion {
 
 		const { path: DOC_URI_PATH } = document.uri;
 
-		let normalizedAbsolutePath = getNormalizedAbsolutePath({
-			DOC_URI_PATH,
-			ALIAS_PATH,
-			ALIAS_ARRAY: this.cptAliasArray,
-			ROOT_PATH: this._configs.wsRoot || "",
-			ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE
-		});
+    let normalizedAbsolutePath = getNormalizedAbsolutePath({
+      DOC_URI_PATH,
+      ALIAS_PATH,
+      ALIAS_ARRAY: this.cptAliasArray,
+      ROOT_PATH: this._configs.wsRoot || "",
+      ALIAS_PATH_CACHE: this.ALIAS_PATH_CACHE,
+      isGetDirContent: true
+    });
 
 		const [, files] = await asyncAllDirAndFile([normalizedAbsolutePath]);
 
