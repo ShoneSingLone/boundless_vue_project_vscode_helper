@@ -4,7 +4,7 @@
 	"displayName": "boundless Vue Helper",
 	"description": "boundless Vue 项目辅助 扩展。 任意符合正则的字符串，别名跳转。在package.json同目录里面添加\"configs.boundlessHelper.js\" module.exports = {alias:{key是正则，value是用于 replace(正则,value) 部分}}",
 	"publisher": "ShoneSingLone",
-	"version": "0.0.13",
+	"version": "0.0.14",
 	"engines": {
 		"vscode": "^1.83.0"
 	},
