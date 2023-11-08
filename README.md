@@ -1,4 +1,6 @@
-# [boundless-vue-helper](https://marketplace.visualstudio.com/items?itemName=ShoneSingLone.boundless-vue-helper)
+# [主项目 boundless_vue_project](https://github.com/ShoneSingLone/boundless_vue_project)
+
+## [配套插件 boundless-vue-helper](https://marketplace.visualstudio.com/items?itemName=ShoneSingLone.boundless-vue-helper)
 
 npm install -g @vscode/vsce
 vsce package
@@ -9,14 +11,19 @@ vsce publish patch, minor, or major
 
 - configs.boundlessHelper.js 才会启动插件探测 (package.json 同目录)
 - 通用的配置
-  ![](extension/20231026113734.png)
+  ![](extension/20231105045057.png)
 
-```json
-"useBoundlessVue": {
-    "alias": {
-      "^/common/": "/static_vue2_element/common/"
-    }
-  }
+```js
+module.exports = {
+	alias: {
+		"^/common/": "/static_vue2/common/"
+	},
+	autoImport: {
+		findFilesInclude: "static_vue2/**/*.vue",
+		businessPrefix: "static_vue2/business_",
+		commonPrefix: "static_vue2/common/"
+	}
+};
 ```
 
 - `@`是默认`business_**`文件夹下的资源（个人项目专用）

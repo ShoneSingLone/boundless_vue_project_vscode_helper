@@ -4,18 +4,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-- Initial release
-- [ ] 添加缓存
-- [ ] 添加单元测试
-- [ ] 添加文档
-- [ ] 添加 CI
-- [ ] 添加代码风格检查
-- [ ] 添加代码检查
-- [ ] 添加代码格式化
-- [ ] 添加代码分割
+## 2023年11月8日
 
-## 2023年11月5日
+- fix DefinitionPathAlias 路径补全
 
+## 2023 年 11 月 5 日
+
+- [SignatureHelpProvider](https://code.visualstudio.com/api/references/vscode-api#SignatureHelpProvider)
 - 加入自动导入
 
 ## 2023 年 10 月 28 日

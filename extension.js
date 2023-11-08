@@ -1,6 +1,6 @@
 const vc = require("vscode");
 const path = require("path");
-const { ProvierPathAlias } = require("./src/ProvierPathAlias.js");
+const { DefinitionPathAlias } = require("./src/DefinitionPathAlias.js");
 const { ProvierCompletion } = require("./src/ProvierCompletion.js");
 const { activateIntellisense } = require("./src/intellisense/client/client.js");
 
@@ -25,14 +25,14 @@ function activate(context) {
 function deactivate() {}
 
 function initPathAlias({ context, configs }) {
-	const subscription = vc.languages.registerDefinitionProvider(
-		[
-			{ scheme: "file", language: "vue" },
-			{ scheme: "file", language: "javascript" }
-		],
-		new ProvierPathAlias(configs)
-	);
-	context.subscriptions.push(subscription);
+  const subscription = vc.languages.registerDefinitionProvider(
+    [
+      { scheme: "file", language: "vue" },
+      { scheme: "file", language: "javascript" },
+    ],
+    new DefinitionPathAlias(configs),
+  );
+  context.subscriptions.push(subscription);
 }
 
 function initCompletion({ context, configs }) {
