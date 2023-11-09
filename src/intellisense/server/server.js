@@ -19,6 +19,7 @@ const { TextDocument } = require("vscode-languageserver-textdocument");
 const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
+/* 作为当前vscode打开文档的一个映射 */
 /*  TextDocuments<TextDocument> */
 const documents = new TextDocuments(TextDocument);
 
@@ -27,9 +28,9 @@ let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 
 /**
- * InitializeParams
+ 
+ * @type import("vscode-languageclient/node").InitializeParams
  */
-// @ts-ignore
 connection.onInitialize(params => {
 	const capabilities = params.capabilities;
 
@@ -47,9 +48,13 @@ connection.onInitialize(params => {
 		capabilities.textDocument.publishDiagnostics.relatedInformation
 	);
 
-	/* InitializeResult */
+	/**
+	 * @type import("vscode-languageclient/node").InitializeResult
+	 */
 	const result = {
 		capabilities: {
+			definitionProvider: true,
+			hoverProvider: true,
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
@@ -81,6 +86,27 @@ connection.onInitialized(() => {
 		});
 	}
 });
+connection.onDefinition((params) => {
+	return {
+		range: {
+			start: { line: 0, character: 0 },
+			end: { line: 0, character: 0 },
+		},
+		contents: [
+			{ language: "typescript", value: "Hello world" },
+			{ language: "typescript", value: "Hello world" },
+		],
+	};
+
+});
+/* HoverParams */
+connection.onHover((params) => {
+	connection.console.log(`🚀 ~ file: server.js:88 ~ connection.onHover ~ params:${JSON.stringify(params)}`);
+	/*  Promise<Hover>  */
+	return Promise.resolve({
+		contents: ["Hover Demo"],
+	});
+});
 
 // The example settings
 /* interface ExampleSettings {
@@ -104,7 +130,7 @@ connection.onDidChangeConfiguration(change => {
 		// Reset all cached document settings
 		documentSettings.clear();
 	} else {
-		globalSettings = change.settings.languageServerBoundless || defaultSettings;
+		globalSettings = change.settings.vueBoundless || defaultSettings;
 	}
 
 	// Revalidate all open text documents
@@ -120,7 +146,7 @@ function getDocumentSettings(resource) {
 	if (!result) {
 		result = connection.workspace.getConfiguration({
 			scopeUri: resource,
-			section: "languageServerBoundless"
+			section: "vueBoundless"
 		});
 		documentSettings.set(resource, result);
 	}

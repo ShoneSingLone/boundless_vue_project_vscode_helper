@@ -5,6 +5,7 @@
 let IntellisenseClient;
 const path = require("path");
 const { workspace } = require("vscode");
+const { workspace } = require("@vue/language-server");
 const { AutoImport } = require("./auto-import");
 
 const { LanguageClient, TransportKind } = require("vscode-languageclient/node");
@@ -67,8 +68,8 @@ function activate({ context, configs }) {
 
 	// Create the language client and start the client.
 	IntellisenseClient = new LanguageClient(
-		"languageServerBoundless",
-		"Language Server Boundless",
+		"vueBoundless",
+		"Vue Language Server Boundless",
 		serverOptions,
 		clientOptions
 	);
