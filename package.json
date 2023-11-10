@@ -37,7 +37,6 @@
 		"publish:patch": "vsce publish patch"
 	},
 	"dependencies": {
-		"@vue/language-server": "^1.8.22",
 		"lodash": "4.17.4",
 		"node-json-db": "0.7.3",
 		"vscode-languageclient": "^9.0.1",

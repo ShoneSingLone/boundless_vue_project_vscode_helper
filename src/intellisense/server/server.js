@@ -26,6 +26,55 @@ const documents = new TextDocuments(TextDocument);
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
+async function validateTextDocument(textDocument) {
+	// In this simple example we get the settings for every validate run.
+	const settings = (await getDocumentSettings(textDocument.uri)) || {};
+
+	// The validator creates diagnostics for all uppercase words length 2 and more
+	const text = textDocument.getText();
+	const pattern = /\b[A-Z]{2,}\b/g;
+	/* RegExpExecArray | null */
+	let m;
+
+	let problems = 0;
+	/* Diagnostic[]  */
+	const diagnostics = [];
+	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
+		problems++;
+		/* Diagnostic */
+		const diagnostic = {
+			severity: DiagnosticSeverity.Warning,
+			range: {
+				start: textDocument.positionAt(m.index),
+				end: textDocument.positionAt(m.index + m[0].length)
+			},
+			message: `${m[0]} is all uppercase.`,
+			source: "ex"
+		};
+		if (hasDiagnosticRelatedInformationCapability) {
+			diagnostic.relatedInformation = [
+				{
+					location: {
+						uri: textDocument.uri,
+						range: Object.assign({}, diagnostic.range)
+					},
+					message: "Spelling matters"
+				},
+				{
+					location: {
+						uri: textDocument.uri,
+						range: Object.assign({}, diagnostic.range)
+					},
+					message: "Particularly for names"
+				}
+			];
+		}
+		diagnostics.push(diagnostic);
+	}
+
+	// Send the computed diagnostics to VSCode.
+	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+}
 
 /**
  
@@ -86,26 +135,14 @@ connection.onInitialized(() => {
 		});
 	}
 });
-connection.onDefinition((params) => {
-	return {
-		range: {
-			start: { line: 0, character: 0 },
-			end: { line: 0, character: 0 },
-		},
-		contents: [
-			{ language: "typescript", value: "Hello world" },
-			{ language: "typescript", value: "Hello world" },
-		],
-	};
-
-});
+connection.onDefinition(({ textDocument, position }) => { });
 /* HoverParams */
-connection.onHover((params) => {
-	connection.console.log(`🚀 ~ file: server.js:88 ~ connection.onHover ~ params:${JSON.stringify(params)}`);
+connection.onHover(async params => {
+	connection.console.log(`🚀 ~ file: server.js:88 ~ connection.onHover`);
 	/*  Promise<Hover>  */
-	return Promise.resolve({
-		contents: ["Hover Demo"],
-	});
+	return {
+		contents: ["Hover Demo"]
+	};
 });
 
 // The example settings
@@ -161,60 +198,10 @@ documents.onDidClose(e => {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
-	validateTextDocument(change.document);
+	console.log("🚀 ~ file: server.js:203 ~ change:");
 });
 
 /* TextDocument */
-async function validateTextDocument(textDocument) {
-	// In this simple example we get the settings for every validate run.
-	const settings = (await getDocumentSettings(textDocument.uri)) || {};
-
-	// The validator creates diagnostics for all uppercase words length 2 and more
-	const text = textDocument.getText();
-	const pattern = /\b[A-Z]{2,}\b/g;
-	/* RegExpExecArray | null */
-	let m;
-
-	let problems = 0;
-	/* Diagnostic[]  */
-	const diagnostics = [];
-	while ((m = pattern.exec(text)) && problems < settings.maxNumberOfProblems) {
-		problems++;
-		/* Diagnostic */
-		const diagnostic = {
-			severity: DiagnosticSeverity.Warning,
-			range: {
-				start: textDocument.positionAt(m.index),
-				end: textDocument.positionAt(m.index + m[0].length)
-			},
-			message: `${m[0]} is all uppercase.`,
-			source: "ex"
-		};
-		if (hasDiagnosticRelatedInformationCapability) {
-			diagnostic.relatedInformation = [
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnostic.range)
-					},
-					message: "Spelling matters"
-				},
-				{
-					location: {
-						uri: textDocument.uri,
-						range: Object.assign({}, diagnostic.range)
-					},
-					message: "Particularly for names"
-				}
-			];
-		}
-		diagnostics.push(diagnostic);
-	}
-
-	// Send the computed diagnostics to VSCode.
-	connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
-}
-
 connection.onDidChangeWatchedFiles(_change => {
 	// Monitored files have change in VSCode
 	connection.console.log("We received an file change event");
@@ -224,12 +211,7 @@ connection.onDidChangeWatchedFiles(_change => {
 connection.onCompletion(
 	/* TextDocumentPositionParams */
 	({ context, position, textDocument }) => {
-		console.log(
-			"🚀 ~ file: server.js:201 ~ _textDocumentPosition:",
-			context,
-			position,
-			textDocument
-		);
+		console.log("🚀 ~ file: server.js:201 ~ _textDocumentPosition:");
 
 		return [
 			{

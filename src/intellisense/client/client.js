@@ -5,7 +5,7 @@
 let IntellisenseClient;
 const path = require("path");
 const { workspace } = require("vscode");
-const { workspace } = require("@vue/language-server");
+// const { workspace } = require("@vue/language-server");
 const { AutoImport } = require("./auto-import");
 
 const { LanguageClient, TransportKind } = require("vscode-languageclient/node");
@@ -21,15 +21,7 @@ function activate({ context, configs }) {
 		if (!context.workspaceState.get("boundlessAutoImportConfigs")) {
 			context.workspaceState.update("boundlessAutoImportConfigs", {});
 		}
-
-		let extension = new AutoImport({ context, configs });
-		let start = extension.start();
-		if (!start) {
-			return;
-		}
-		extension.attachCommands();
-		extension.attachFileWatcher();
-		extension.scanAllVueSFC();
+		new AutoImport({ context, configs });
 	} catch (error) {
 		console.error(error);
 	}
@@ -39,39 +31,37 @@ function activate({ context, configs }) {
 		path.join("src", "intellisense", "server", "server.js")
 	);
 
-	const debugOptions = {
-		execArgv: ["--nolazy", "--inspect=6009"]
-	};
-
-	const serverOptions = {
-		run: { module: serverModule, transport: TransportKind.ipc },
-		debug: {
-			module: serverModule,
-			transport: TransportKind.ipc,
-			options: debugOptions
-		}
-	};
-
 	// Options to control the language client
-	/* LanguageClientOptions */
-	const clientOptions = {
-		/* .js .vue 会触发 */
-		documentSelector: [
-			{ scheme: "file", language: "javascript" },
-			{ scheme: "file", language: "vue" }
-		],
-		synchronize: {
-			// Notify the server about file changes to '.clientrc files contained in the workspace
-			fileEvents: workspace.createFileSystemWatcher("**/.clientrc")
-		}
-	};
+	/**
+	 * @type import("vscode-languageclient").LanguageClientOptions
+	 */
 
 	// Create the language client and start the client.
 	IntellisenseClient = new LanguageClient(
 		"vueBoundless",
 		"Vue Language Server Boundless",
-		serverOptions,
-		clientOptions
+		/* serverOptions */
+		{
+			run: { module: serverModule, transport: TransportKind.ipc },
+			debug: {
+				module: serverModule,
+				transport: TransportKind.ipc,
+				options: {
+					execArgv: [`--inspect=${6010}`]
+				}
+			}
+		},
+		{
+			/* .js .vue 会触发 */
+			documentSelector: [
+				{ scheme: "file", language: "javascript" },
+				{ scheme: "file", language: "vue" }
+			],
+			synchronize: {
+				// Notify the server about file changes to '.clientrc files contained in the workspace
+				fileEvents: workspace.createFileSystemWatcher("**/.clientrc")
+			}
+		}
 	);
 
 	// Start the client. This will also launch the server

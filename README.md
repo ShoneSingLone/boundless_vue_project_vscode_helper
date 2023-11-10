@@ -54,10 +54,18 @@ context.workspaceState.get("boundlessAutoImportConfigs");
 context.workspaceState.update("boundlessAutoImportConfigs", {});
 ```
 
+- Vue.\_开头的业务函数 比如 \_api \_opts .vue
+
+- \_.$开头的通用工具函数 在 common.js
+
+- 同名组件跳转
+
+```sh
 npm install -g @vscode/vsce
 vsce package
 vsce login
 vsce publish patch, minor, or major
+```
 
 词法高亮 词法分析
 
@@ -65,3 +73,4 @@ vsce publish patch, minor, or major
 
 - [如何开发一款 VS Code 语言插件 —— 以 vetur 为例](https://www.bilibili.com/video/BV1sh411z7Vq/?spm_id_from=333.880.my_history.page.click&vd_source=c585c94b49670e0f28d6c87eb2271489)
 - [vscode-path-alias](https://github.com/IWANABETHATGUY/vscode-path-alias)
+- https://marketplace.visualstudio.com/items?itemName=steoates.autoimport

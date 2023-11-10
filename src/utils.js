@@ -37,18 +37,18 @@ exports.isObject = function isObject(obj) {
  * @returns
  */
 exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
-  DOC_URI_PATH,
-  ALIAS_PATH,
-  ROOT_PATH,
-  ALIAS_ARRAY,
-  ALIAS_PATH_CACHE,
-  isGetDirContent
+	DOC_URI_PATH,
+	ALIAS_PATH,
+	ROOT_PATH,
+	ALIAS_ARRAY,
+	ALIAS_PATH_CACHE,
+	isGetDirContent
 }) {
-  const ext = path.extname(ALIAS_PATH);
-  if (!ext && !isGetDirContent) {
-    /* 尝试获取文件 */
-    ALIAS_PATH += ".js";
-  }
+	const ext = path.extname(ALIAS_PATH);
+	if (!ext && !isGetDirContent) {
+		/* 尝试获取文件 */
+		ALIAS_PATH += ".js";
+	}
 
 	if (ALIAS_PATH_CACHE[ALIAS_PATH]) {
 		return ALIAS_PATH_CACHE[ALIAS_PATH];

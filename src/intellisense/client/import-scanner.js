@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const vscode = require("vscode");
 const { ImportDb } = require("./import-db");
 const path = require("path");
+const fs = require("fs");
 
 class ImportScanner {
 	constructor(configs) {
@@ -22,7 +23,7 @@ class ImportScanner {
 	}
 	edit(request) {
 		this.delete(request);
-		this.loadFile(request.file, true);
+		this.loadFile(request.file, true, request.analysis);
 	}
 	delete(request) {
 		ImportDb.delete(request);
@@ -36,18 +37,20 @@ class ImportScanner {
 			this.loadFile(file, index === length);
 		}
 	}
-	loadFile(file, last) {
-		this.processFile("", file);
+	loadFile(file, last, isNeedAnalysis = false) {
+		this.processFile(file, isNeedAnalysis);
 		if (last) {
 			this.scanEnded = new Date();
-			vscode.window.showInformationMessage(
-				`"boundless-vue-helper" Complete - (${Math.abs(
-					this.scanStarted - this.scanEnded
-				)}ms)`
-			);
+			// @ts-ignore
+			this.scanStarted &&
+				vscode.window.showInformationMessage(
+					`"boundless-vue-helper" Complete - (${Math.abs(
+						this.scanStarted - this.scanEnded
+					)}ms)`
+				);
 		}
 	}
-	processFile(fileContentString, fileInfo) {
+	processFile(fileInfo, isNeedAnalysis = false) {
 		const fileName = path.basename(fileInfo.path);
 		const ext = path.extname(fileInfo.path);
 		const isDefault = true;
@@ -68,13 +71,26 @@ class ImportScanner {
 		fileInfo.importURL = importURL;
 		fileInfo.appName = appName;
 
-		ImportDb.saveImport(
-			fileName.replace(ext, ""),
-			fileContentString,
-			fileInfo,
-			isDefault,
-			null
-		);
+		if (isNeedAnalysis) {
+			fs.promises.readFile(fileInfo.fsPath, "utf-8").then(content => {
+				/* 解析，定义和注释 */
+				ImportDb.saveImport(
+					fileName.replace(ext, ""),
+					content,
+					fileInfo,
+					isDefault,
+					null
+				);
+			});
+		} else {
+			ImportDb.saveImport(
+				fileName.replace(ext, ""),
+				"",
+				fileInfo,
+				isDefault,
+				null
+			);
+		}
 	}
 }
 exports.ImportScanner = ImportScanner;

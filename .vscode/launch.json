@@ -5,11 +5,12 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Attach by Process ID",
-			"processId": "${command:PickProcess}",
+			"name": "Attach to Server",
+			"type": "node",
 			"request": "attach",
-			"skipFiles": ["<node_internals>/**"],
-			"type": "node"
+			"port": 6010,
+			"restart": true,
+			"outFiles": ["${workspaceRoot}/src/intellisense/server/server.js"]
 		},
 		{
 			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
