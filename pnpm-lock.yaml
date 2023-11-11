@@ -6,6 +6,7 @@ specifiers:
   '@types/vscode': ^1.83.0
   '@vscode/test-electron': ^2.3.4
   eslint: ^8.50.0
+  esprima: ^4.0.1
   glob: ^10.3.3
   lodash: 4.17.4
   mocha: ^10.2.0
@@ -16,6 +17,7 @@ specifiers:
   vscode-languageserver-textdocument: ^1.0.11
 
 dependencies:
+  esprima: 4.0.1
   lodash: 4.17.4
   node-json-db: 0.7.3
   vscode-languageclient: 9.0.1
@@ -471,6 +473,12 @@ packages:
       acorn-jsx: 5.3.2_acorn@8.10.0
       eslint-visitor-keys: 3.4.3
     dev: true
+
+  /esprima/4.0.1:
+    resolution: {integrity: sha512-eGuFFw7Upda+g4p+QHvnW0RyTX/SVeJBDM/gCtMARO0cLuT2HcEKnTPvhjV6aGeqrCB/sbNop0Kszm0jsaWU4A==}
+    engines: {node: '>=4'}
+    hasBin: true
+    dev: false
 
   /esquery/1.5.0:
     resolution: {integrity: sha512-YQLXUplAwJgCydQ78IMJywZCceoqk1oH01OERdSAJc/7U2AylwjhSCLDEtqwg811idIS/9fIU5GjG73IgjKMVg==}

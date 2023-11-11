@@ -137,11 +137,18 @@ connection.onInitialized(() => {
 });
 connection.onDefinition(({ textDocument, position }) => { });
 /* HoverParams */
-connection.onHover(async params => {
-	connection.console.log(`🚀 ~ file: server.js:88 ~ connection.onHover`);
+connection.onHover(async ({ textDocument, position }) => {
 	/*  Promise<Hover>  */
+	const a = documents.get(textDocument.uri);
+	// Basic infomation of the document and cursor's position
+	let uri = textDocument.uri;
+	let document = documents.get(uri);
+	let doc = document.getText();
+	let lines = doc.split(/\r?\n/g);
+	let line = lines[position.line];
+
 	return {
-		contents: ["Hover Demo"]
+		contents: [JSON.stringify(position),line]
 	};
 });
 
@@ -198,7 +205,6 @@ documents.onDidClose(e => {
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
-	console.log("🚀 ~ file: server.js:203 ~ change:");
 });
 
 /* TextDocument */
@@ -211,8 +217,6 @@ connection.onDidChangeWatchedFiles(_change => {
 connection.onCompletion(
 	/* TextDocumentPositionParams */
 	({ context, position, textDocument }) => {
-		console.log("🚀 ~ file: server.js:201 ~ _textDocumentPosition:");
-
 		return [
 			{
 				label: "TypeScript",

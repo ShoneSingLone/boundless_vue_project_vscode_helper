@@ -69,8 +69,12 @@ vsce publish patch, minor, or major
 
 词法高亮 词法分析
 
+
+## hover函数注释信息
+
 ## 参考
 
 - [如何开发一款 VS Code 语言插件 —— 以 vetur 为例](https://www.bilibili.com/video/BV1sh411z7Vq/?spm_id_from=333.880.my_history.page.click&vd_source=c585c94b49670e0f28d6c87eb2271489)
 - [vscode-path-alias](https://github.com/IWANABETHATGUY/vscode-path-alias)
-- https://marketplace.visualstudio.com/items?itemName=steoates.autoimport
+- [Auto Import](https://marketplace.visualstudio.com/items?itemName=steoates.autoimport)
+- [vue-helper](https://github.com/jiaolong1021/vue-helper/tree/master)

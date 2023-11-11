@@ -18,10 +18,10 @@ class ImportFixer {
 		const path = importObj.fileInfo.importURL;
 		if (!this.alreadyResolved(document, path)) {
 			const textIndexOf = document.getText().indexOf("export default async");
-			const positionAt = document.positionAt(textIndexOf);
+			const position = document.positionAt(textIndexOf);
 			edit.insert(
 				document.uri,
-				positionAt.translate(1, 0),
+				position.translate(1, 0),
 				this.createImportStatement(importObj.fileName, path)
 			);
 		}

@@ -8,9 +8,9 @@ exports.getInsertPathRange = function getInsertPathRange(
 	length
 ) {
 	const numberOfEndPoint = document.offsetAt(range.end);
-	const end = document.positionAt(numberOfEndPoint - 1);
-	const start = document.positionAt(numberOfEndPoint - length - 1);
-	return new Range(start, end);
+	const endPosition = document.positionAt(numberOfEndPoint - 1);
+	const startPosition = document.positionAt(numberOfEndPoint - length - 1);
+	return new Range(startPosition, endPosition);
 };
 
 /**
