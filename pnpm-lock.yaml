@@ -15,6 +15,7 @@ specifiers:
   vscode-languageclient: ^9.0.1
   vscode-languageserver: ^9.0.1
   vscode-languageserver-textdocument: ^1.0.11
+  vscode-uri: ^3.0.8
 
 dependencies:
   esprima: 4.0.1
@@ -23,6 +24,7 @@ dependencies:
   vscode-languageclient: 9.0.1
   vscode-languageserver: 9.0.1
   vscode-languageserver-textdocument: 1.0.11
+  vscode-uri: 3.0.8
 
 devDependencies:
   '@types/mocha': 10.0.2
@@ -1256,6 +1258,10 @@ packages:
     hasBin: true
     dependencies:
       vscode-languageserver-protocol: 3.17.5
+    dev: false
+
+  /vscode-uri/3.0.8:
+    resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
     dev: false
 
   /which/2.0.2:

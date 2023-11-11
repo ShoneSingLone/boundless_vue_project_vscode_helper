@@ -9,9 +9,7 @@ const {
 
 function activate(context) {
 	try {
-		let configs = require(
-			path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js")
-		);
+		let configs = require( path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js") );
 		configs.wsRoot = vc.workspace.rootPath;
 		console.log(
 			'"boundless-vue-helper" is now active!',
@@ -19,7 +17,7 @@ function activate(context) {
 			vc.workspace.rootPath
 		);
 		initPathAlias({ context, configs });
-		initCompletion({ context, configs });
+		// initCompletion({ context, configs });
 		activateIntellisense({ context, configs });
 	} catch (error) {}
 }

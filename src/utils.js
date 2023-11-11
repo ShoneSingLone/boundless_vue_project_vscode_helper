@@ -1,6 +1,7 @@
-const { workspace, Range } = require("vscode");
 const fs = require("fs").promises;
 const path = require("path");
+
+exports.ALIAS_PATH_CACHE = {};
 
 exports.getInsertPathRange = function getInsertPathRange(
 	range,
@@ -10,22 +11,11 @@ exports.getInsertPathRange = function getInsertPathRange(
 	const numberOfEndPoint = document.offsetAt(range.end);
 	const endPosition = document.positionAt(numberOfEndPoint - 1);
 	const startPosition = document.positionAt(numberOfEndPoint - length - 1);
-	return new Range(startPosition, endPosition);
-};
 
-/**
- * 返回给定的uri属于的workspaceFolder 索引
- *
- * @export
- * @param {Uri} uri
- * @returns {(number | undefined)}
- */
-exports.getIndexOfWorkspaceFolder = function getIndexOfWorkspaceFolder(uri) {
-	const ws = workspace.getWorkspaceFolder(uri);
-	if (ws) {
-		return ws.index;
-	}
-	return undefined;
+	return {
+		start: startPosition,
+		end: endPosition
+	};
 };
 
 exports.isObject = function isObject(obj) {
@@ -53,6 +43,8 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
 	if (ALIAS_PATH_CACHE[ALIAS_PATH]) {
 		return ALIAS_PATH_CACHE[ALIAS_PATH];
 	}
+
+
 	let isInBusiness = /\/business_(.*)\//.test(DOC_URI_PATH);
 	let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
 	let normalizedAbsolutePath = (() => {
@@ -83,6 +75,8 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
 			return `${ROOT_PATH}${SRC_ROOT_PATH}`;
 		}
 	})();
+
+	
 	return path.normalize(
 		normalizedAbsolutePath.split("/").filter(Boolean).join("/")
 	);
