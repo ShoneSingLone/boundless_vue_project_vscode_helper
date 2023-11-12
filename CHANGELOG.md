@@ -4,6 +4,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+
+
+## 2023年11月13日
+
+- 完成common工具函数自动补全-初版
+
+## 2023年11月10日
+
+- 修复了部分代码提示
+
 ## 2023年11月8日
 
 - fix DefinitionPathAlias 路径补全

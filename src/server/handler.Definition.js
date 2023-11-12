@@ -12,7 +12,7 @@ const REG_JS_PATH = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
  * @param {*} param0 
  * @returns 
  */
-exports.handleDefinition = function ({ documents, textDocument, position, configs }) {
+exports.handleDefinition = async function ({ documents, textDocument, position, configs }) {
     const { lineContent, documentUriPath } = getBaseInfo({ documents, textDocument, position });
 
     /* _.$importVue 路径 */
@@ -41,27 +41,7 @@ exports.handleDefinition = function ({ documents, textDocument, position, config
 
 
     if (currRegExp === REG_COMPONENT_TAG) {
-        const tagName = selectedString;
-
-        const matchString = fileInfo => {
-            return tagName === fileInfo.fileName;
-        };
-        const suggestions = vueFiles.records.filter(matchString).map(({ urlInSourceCode }) => {
-            const normalizedAbsolutePath = getNormalizedAbsolutePath({
-                ROOT_PATH: configs.wsRoot || "",
-                documentUriPath,
-                configsAliasArray: configs._aliasArray || [],
-                urlInSourceCode,
-            });
-            if (normalizedAbsolutePath) {
-                return newFileLocation(normalizedAbsolutePath);
-            }
-        });
-
-        if (!suggestions.length) {
-            return;
-        }
-        return suggestions;
+        return handleJumpToComponentTag({ tagName: selectedString, configs, documentUriPath });
     }
 
     let normalizedAbsolutePath = getNormalizedAbsolutePath({
@@ -77,3 +57,24 @@ exports.handleDefinition = function ({ documents, textDocument, position, config
     return null;
 };
 
+function handleJumpToComponentTag({ tagName, configs, documentUriPath }) {
+    const matchString = fileInfo => {
+        return tagName === fileInfo.fileName;
+    };
+    const suggestions = vueFiles.records.filter(matchString).map(({ urlInSourceCode }) => {
+        const normalizedAbsolutePath = getNormalizedAbsolutePath({
+            ROOT_PATH: configs.wsRoot || "",
+            documentUriPath,
+            configsAliasArray: configs._aliasArray || [],
+            urlInSourceCode,
+        });
+        if (normalizedAbsolutePath) {
+            return newFileLocation(normalizedAbsolutePath);
+        }
+    });
+
+    if (!suggestions.length) {
+        return;
+    }
+    return suggestions;
+}

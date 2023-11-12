@@ -130,7 +130,7 @@ connection.onHover(async ({ textDocument, position }) => {
 	};
 });
 
-connection.onDefinition(({ textDocument, position }) => {
+connection.onDefinition(async ({ textDocument, position }) => {
 	return handleDefinition({ documents, textDocument, position, configs });
 });
 
