@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const FS = require("fs");
 const _ = require("lodash");
 const vscode = require("vscode");
-const { ImportDb } = require("./import-db");
+const { ServerDb } = require("./ServerDb");
 class NodeUpload {
 	constructor({ findFilesInclude, useAutoImportNet }) {
 		this.findFilesInclude = findFilesInclude;
@@ -15,7 +15,7 @@ class NodeUpload {
 				let map = mappings[key];
 				if (map) {
 					map.forEach(exp => {
-						ImportDb.save(exp, exp, { fsPath: key }, false, true);
+						ServerDb.save(exp, exp, { fsPath: key }, false, true);
 					});
 				}
 			}

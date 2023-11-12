@@ -5,7 +5,7 @@ const path = require("path");
 const { camelCase } = require("lodash");
 class ImportFixer {
 	constructor({ configs }) {
-		this.businessPrefix = configs.autoImport.businessPrefix;
+		this.businessPrefix = configs.analysis.businessPrefix;
 	}
 
 	fix({ document, importObj }) {
@@ -15,7 +15,7 @@ class ImportFixer {
 
 	getTextEdit(document, importObj) {
 		const edit = new vscode.WorkspaceEdit();
-		const path = importObj.fileInfo.importURL;
+		const path = importObj.fileInfo.urlInSourceCode;
 		if (!this.alreadyResolved(document, path)) {
 			const textIndexOf = document.getText().indexOf("export default async");
 			const position = document.positionAt(textIndexOf);

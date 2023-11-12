@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const { camelCase } = require("lodash");
-const { ImportDb } = require("./import-db");
+const { ServerDb } = require("./ServerDb");
 const { ImportFixer } = require("./import-fixer");
 const vscode = require("vscode");
 class ImportCompletion {
@@ -29,7 +29,7 @@ class ImportCompletion {
 				return new RegExp(`${wordToComplete}`, "ig").test(fileInfo.fileName);
 			};
 
-			const suggestions = ImportDb.records
+			const suggestions = ServerDb.records
 				.filter(matchString)
 				.map(i => this.buildCompletionItem(i, document));
 
@@ -42,7 +42,7 @@ class ImportCompletion {
 			label: `${label}`,
 			kind: vscode.CompletionItemKind.Variable,
 			detail: `Boundless importVue ${importObj.fileInfo.appName || ""}`,
-			documentation: `const ${label} = _.$importVue("${importObj.fileInfo.importURL}");`,
+			documentation: `const ${label} = _.$importVue("${importObj.fileInfo.urlInSourceCode}");`,
 			command: {
 				title: "AI: Autocomplete",
 				command: "shone.sing.lone.resolveImport",

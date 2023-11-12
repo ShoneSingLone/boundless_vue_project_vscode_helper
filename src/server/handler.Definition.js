@@ -1,36 +1,39 @@
 const { Location } = require("vscode-languageserver/node");
-const { getNormalizedAbsolutePath, ALIAS_PATH_CACHE, newFileLocation } = require("../../utils");
+const { getNormalizedAbsolutePath, newFileLocation } = require("../utils");
 const { URI } = require("vscode-uri");
-const { records } = require("../client/import-db");
+const { records } = require("./server.db");
+
 
 const REG_VUE_PATH = /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/;
-const REG_JS_PATH = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
 const REG_COMPONENT_TAG = /\<\/?([\w-]+).*?/;
+/* js路径权重最低（正则特殊性最低，匹配上的概率更大），所以最后尝试 */
+const REG_JS_PATH = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
 
-
+/**
+ * @description 路径跳转
+ * @param {*} param0 
+ * @returns 
+ */
 exports.handleDefinition = function ({ documents, textDocument, position, configs }) {
     /* @ts-ignore */
     let document = documents.get(textDocument.uri);
-    const { path: DOC_URI_PATH } = URI.parse(document.uri);
+    const { path: documentUriPath } = URI.parse(document.uri);
     let doc = document.getText();
     let lines = doc.split(/\r?\n/g);
     let lineText = lines[position.line];
 
-
-
     /* _.$importVue 路径 */
     let currRegExp = REG_VUE_PATH;
     const isVueSFC_path = currRegExp.test(lineText);
-
     if (!isVueSFC_path) {
-        /* 尝试 js 路径 */
-        currRegExp = REG_JS_PATH;
-        const isJS_path = currRegExp.test(lineText);
-        if (!isJS_path) {
-            /* 尝试tag */
-            currRegExp = REG_COMPONENT_TAG;
-            const isTag_path = currRegExp.test(lineText);
-            if (!isTag_path) {
+        /* 尝试tag */
+        currRegExp = REG_COMPONENT_TAG;
+        const isTag_path = currRegExp.test(lineText);
+        if (!isTag_path) {
+            /* 尝试 js 路径 */
+            currRegExp = REG_JS_PATH;
+            const isJS_path = currRegExp.test(lineText);
+            if (!isJS_path) {
                 return;
             }
         }
@@ -50,15 +53,12 @@ exports.handleDefinition = function ({ documents, textDocument, position, config
         const matchString = fileInfo => {
             return tagName === fileInfo.fileName;
         };
-
-
-        const suggestions = records.filter(matchString).map(({ fileInfo }) => {
+        const suggestions = records.filter(matchString).map(({ urlInSourceCode }) => {
             const normalizedAbsolutePath = getNormalizedAbsolutePath({
-                DOC_URI_PATH,
-                ALIAS_PATH: fileInfo.importURL,
-                ALIAS_ARRAY: configs._aliasArray || [],
                 ROOT_PATH: configs.wsRoot || "",
-                ALIAS_PATH_CACHE,
+                documentUriPath,
+                configsAliasArray: configs._aliasArray || [],
+                urlInSourceCode,
             });
             if (normalizedAbsolutePath) {
                 return newFileLocation(normalizedAbsolutePath);
@@ -71,14 +71,11 @@ exports.handleDefinition = function ({ documents, textDocument, position, config
         return suggestions;
     }
 
-    // console.log("🚀 ALIAS_PATH:", ALIAS_PATH);
-
     let normalizedAbsolutePath = getNormalizedAbsolutePath({
-        DOC_URI_PATH,
-        ALIAS_PATH: selectedString,
-        ALIAS_ARRAY: configs._aliasArray || [],
         ROOT_PATH: configs.wsRoot || "",
-        ALIAS_PATH_CACHE
+        documentUriPath,
+        configsAliasArray: configs._aliasArray || [],
+        urlInSourceCode: selectedString,
     });
 
     if (normalizedAbsolutePath) {

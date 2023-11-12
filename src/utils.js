@@ -2,8 +2,10 @@ const fs = require("fs").promises;
 const path = require("path");
 const { URI } = require("vscode-uri");
 
-exports.ALIAS_PATH_CACHE = {};
+const ALIAS_PATH_CACHE = {};
 
+exports.CLIENT_EMIT_TYPE_DELETE = "shone.sing.lone.client.emit.type.delete";
+exports.CLIENT_EMIT_TYPE_SAVE = "shone.sing.lone.client.emit.type.save";
 exports.getInsertPathRange = function getInsertPathRange(
 	range,
 	document,
@@ -28,45 +30,43 @@ exports.isObject = function isObject(obj) {
  * @returns
  */
 exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
-	DOC_URI_PATH,
-	ALIAS_PATH,
+	documentUriPath,
+	urlInSourceCode,
 	ROOT_PATH,
-	ALIAS_ARRAY,
-	ALIAS_PATH_CACHE,
-	isGetDirContent
+	configsAliasArray,
+	isGetDir
 }) {
-	const ext = path.extname(ALIAS_PATH);
-	if (!ext && !isGetDirContent) {
+	const ext = path.extname(urlInSourceCode);
+	if (!ext && !isGetDir) {
 		/* 尝试获取文件 */
-		ALIAS_PATH += ".js";
+		urlInSourceCode += ".js";
 	}
 
-	if (ALIAS_PATH_CACHE[ALIAS_PATH]) {
-		return ALIAS_PATH_CACHE[ALIAS_PATH];
+	if (ALIAS_PATH_CACHE[urlInSourceCode]) {
+		return ALIAS_PATH_CACHE[urlInSourceCode];
 	}
 
 
-	let isInBusiness = /\/business_(.*)\//.test(DOC_URI_PATH);
+	let isInBusiness = /\/business_(.*)\//.test(documentUriPath);
 	let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
 	let normalizedAbsolutePath = (() => {
 		if (isInBusiness) {
-			[SRC_ROOT_PATH, FILE_PATH] = DOC_URI_PATH.split("business_");
+			[SRC_ROOT_PATH, FILE_PATH] = documentUriPath.split("business_");
 			[APP_NAME] = FILE_PATH.split("/");
 		}
 
-		if (/^@\/(.*)/.test(ALIAS_PATH)) {
+		if (/^@\/(.*)/.test(urlInSourceCode)) {
 			/* 讲道理，_s的文件不会访问business_下的文件 */
-			return String(ALIAS_PATH).replace(
+			return String(urlInSourceCode).replace(
 				/^@/,
 				`${SRC_ROOT_PATH}/business_${APP_NAME}`
 			);
 		}
 
 		let isInAliasMap = false;
-		for (const element of ALIAS_ARRAY) {
-			const [reg, target] = element;
-			if (new RegExp(reg).test(ALIAS_PATH)) {
-				SRC_ROOT_PATH = ALIAS_PATH.replace(new RegExp(reg), target);
+		for (const [aliasRegExp, aliasPath] of configsAliasArray) {
+			if (new RegExp(aliasRegExp).test(urlInSourceCode)) {
+				SRC_ROOT_PATH = urlInSourceCode.replace(new RegExp(aliasRegExp), aliasPath);
 				isInAliasMap = true;
 				break;
 			}

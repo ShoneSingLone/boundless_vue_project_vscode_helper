@@ -17,8 +17,10 @@ let configs;
 
 
 const { TextDocument } = require("vscode-languageserver-textdocument");
-const { handleCompletion } = require("./handleCompletion");
-const { handleDefinition } = require("./handleDefinition");
+const { handleCompletion } = require("./handler.Completion");
+const { handleDefinition } = require("./handler.Definition");
+const { CLIENT_EMIT_TYPE_SAVE, CLIENT_EMIT_TYPE_DELETE } = require("../utils");
+const { records, ServerDb } = require("./server.db");
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -35,6 +37,7 @@ let hasConfigurationCapability = false;
  
  * @type import("vscode-languageclient/node").InitializeParams
  */
+// @ts-ignore
 connection.onInitialize(params => {
 	try {
 		configs = require(path.resolve(params.rootPath, "configs.boundlessHelper.js"));
@@ -42,8 +45,6 @@ connection.onInitialize(params => {
 		if (configs.alias) {
 			configs._aliasArray = Object.entries(configs.alias);
 		}
-
-
 	} catch (error) {
 		console.error(error);
 	}
@@ -66,6 +67,17 @@ connection.onInitialize(params => {
 			}
 		}, capabilities)
 	};
+});
+
+connection.onRequest(CLIENT_EMIT_TYPE_DELETE, () => {
+	debugger;
+	return {
+		"server.port": 8080
+	};
+});
+connection.onRequest(CLIENT_EMIT_TYPE_SAVE, (record) => {
+	ServerDb.save(record);
+	return true;
 });
 
 connection.onInitialized(() => {

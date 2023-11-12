@@ -9,7 +9,7 @@ const {
     CompletionItem,
 } = require("vscode-languageserver/node");
 
-const { asyncAllDirAndFile, getNormalizedAbsolutePath, ALIAS_PATH_CACHE } = require("../../utils");
+const { asyncAllDirAndFile, getNormalizedAbsolutePath } = require("../utils");
 const path = require("path");
 const { Utils, URI } = require("vscode-uri");
 /* 未完成的就补充路径 */
@@ -19,6 +19,10 @@ const isPathCompletion = (item) => {
     return REG_UNDONE_PATH_REG.test(item);
 };
 
+/* 补全路径
+ * @param {*} param0 
+ * @returns 
+ */
 exports.handleCompletion = function ({ documents, context, position, textDocument, configs }) {
 
     let document = documents.get(textDocument.uri);
@@ -47,18 +51,16 @@ exports.handleCompletion = function ({ documents, context, position, textDocumen
 
 async function handlePathCompletion({ lineText, document, configs }) {
     try {
-
         const completionArray = [];
-        const ALIAS_PATH = String(lineText).match(REG_UNDONE_PATH_REG)[1];
-        const { path: DOC_URI_PATH } = URI.parse(document.uri);;
+        const urlInSourceCode = String(lineText).match(REG_UNDONE_PATH_REG)[1];
+        const { path: documentUriPath } = URI.parse(document.uri);;
 
         let normalizedAbsolutePath = getNormalizedAbsolutePath({
-            DOC_URI_PATH,
-            ALIAS_PATH,
-            ALIAS_ARRAY: configs._aliasArray || [],
             ROOT_PATH: configs.wsRoot || "",
-            ALIAS_PATH_CACHE,
-            isGetDirContent: true
+            documentUriPath,
+            configsAliasArray: configs._aliasArray || [],
+            urlInSourceCode,
+            isGetDir: true
         });
 
         const [, files] = await asyncAllDirAndFile([normalizedAbsolutePath]);

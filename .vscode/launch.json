@@ -22,7 +22,7 @@
 			"port": 6010,
 			"restart": true,
 			"outFiles": [
-				"${workspaceRoot}/src/intellisense/server/server.js"
+				"${workspaceRoot}/src/server/server.js"
 			]
 		},
 	]

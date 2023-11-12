@@ -13,7 +13,7 @@ module.exports = {
 	alias: {
 		"^/common/": "/static_vue2/common/"
 	},
-	autoImport: {
+	analysis: {
 		findFilesInclude: "static_vue2/**/*.vue",
 		businessPrefix: "static_vue2/business_",
 		commonPrefix: "static_vue2/common/"

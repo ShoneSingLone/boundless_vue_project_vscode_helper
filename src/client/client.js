@@ -5,9 +5,6 @@
 let IntellisenseClient;
 const path = require("path");
 const { workspace } = require("vscode");
-// const { workspace } = require("@vue/language-server");
-const { AutoImport } = require("./auto-import");
-
 const { LanguageClient, TransportKind } = require("vscode-languageclient/node");
 
 /**
@@ -16,20 +13,13 @@ const { LanguageClient, TransportKind } = require("vscode-languageclient/node");
  * @export
  * @param {any} context
  */
-function activate({ context, configs }) {
-	try {
-		new AutoImport({ context, configs });
-	} catch (error) {
-		console.error(error);
-	}
-
+function activate({ context }) {
 	// The server is implemented in node
-	const serverModule = context.asAbsolutePath(
-		path.join("src", "intellisense", "server", "server.js")
-	);
+	const serverPath = path.join("src", "server", "server.js");
+	const serverModule = context.asAbsolutePath(serverPath);
 
-	// Options to control the language client
 	/**
+	 * Options to control the language client
 	 * @type import("vscode-languageclient").LanguageClientOptions
 	 */
 
@@ -63,6 +53,7 @@ function activate({ context, configs }) {
 
 	// Start the client. This will also launch the server
 	IntellisenseClient.start();
+	return IntellisenseClient;
 }
 
 function deactivate() {
