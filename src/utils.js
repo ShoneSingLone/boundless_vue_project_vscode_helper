@@ -6,6 +6,21 @@ const ALIAS_PATH_CACHE = {};
 
 exports.CLIENT_EMIT_TYPE_DELETE = "shone.sing.lone.client.emit.type.delete";
 exports.CLIENT_EMIT_TYPE_SAVE = "shone.sing.lone.client.emit.type.save";
+exports.CLIENT_EMIT_TYPE_COMMON_VARIBLES = "shone.sing.lone.client.emit.type.common.varibles.refresh";
+
+
+exports.getDocInfo = function ({ documents, textDocument, position }) {
+	let document = documents.get(textDocument.uri);
+	const { path: documentUriPath } = URI.parse(document.uri);
+	let doc = document.getText();
+	let lines = doc.split(/\r?\n/g);
+	return {
+		document,
+		documentUriPath,
+		lineContent: lines[position.line] || ""
+	};
+};
+
 exports.getInsertPathRange = function getInsertPathRange(
 	range,
 	document,
@@ -131,3 +146,42 @@ function newFileLocation(normalizedAbsolutePath) {
 	};
 };
 exports.newFileLocation = newFileLocation;
+
+
+exports.VueLoader = function (sourceCodeString) {
+	function getSource(source, pickType) {
+		try {
+			var regex = new RegExp(`<${pickType}[^(>|())]*>`);
+			var openingTag = source.match(regex);
+			var targetSource = "";
+			if (!openingTag) {
+				return [targetSource, {}];
+			} else {
+				openingTag = openingTag[0];
+				targetSource = source.slice(source.indexOf(openingTag) + openingTag.length, source.lastIndexOf("</" + pickType + ">"));
+			}
+			/* TODO: jsx解析*/
+			if (["template", "setup-render"].includes(pickType)) {
+				targetSource = targetSource.replace(/`/g, "\\`");
+			}
+			return [targetSource];
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	function splitCode() {
+		const [scritpSourceCode] = getSource(sourceCodeString, "script");
+		const [templateSourceCode] = getSource(sourceCodeString, "template");
+		const [styleSourceCode] = getSource(sourceCodeString, "style");
+		const [setupRenderSourceCode, { scope }] = getSource(sourceCodeString, "setup-render");
+		return {
+			scritpSourceCode,
+			templateSourceCode,
+			styleSourceCode,
+			setupRenderSourceCode
+		};
+	}
+
+	return splitCode();
+};

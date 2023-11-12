@@ -10,7 +10,9 @@ function activate(context) {
 	try {
 		/* 只有root有configs.boundlessHelper.js才会激活插件 */
 		let configs = require(path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js"));
-		const IntellisenseClient = activateIntellisense({ context });
+		/* 启动server */
+		const IntellisenseClient =activateIntellisense({ context });
+		/* 启动client （全局变量scan） */
 		runClientScanner({ IntellisenseClient, configs, context });
 	} catch (error) {
 		console.error(error);

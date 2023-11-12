@@ -1,21 +1,20 @@
-const {
-    createConnection,
-    TextDocuments,
-    DiagnosticSeverity,
-    ProposedFeatures,
-    DidChangeConfigurationNotification,
-    CompletionItemKind,
-    TextDocumentSyncKind,
-    CompletionItem,
-} = require("vscode-languageserver/node");
+const { CompletionItemKind, } = require("vscode-languageserver/node");
 
-const { asyncAllDirAndFile, getNormalizedAbsolutePath } = require("../utils");
+const { asyncAllDirAndFile, getNormalizedAbsolutePath, getDocInfo: getBaseInfo } = require("../utils");
 const path = require("path");
-const { Utils, URI } = require("vscode-uri");
+const { URI } = require("vscode-uri");
+const { commonVaribles } = require("./server.db");
 /* 未完成的就补充路径 */
 const REG_UNDONE_PATH_REG = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
+const REG_IS_GLOBAL_VARIBLES_REG = /_\.(.*)/;
 
 const isPathCompletion = (item) => {
+    return REG_UNDONE_PATH_REG.test(item);
+};
+const isGlobalVaribles = (item) => {
+    return REG_IS_GLOBAL_VARIBLES_REG.test(item);
+};
+const isVueVaribles = (item) => {
     return REG_UNDONE_PATH_REG.test(item);
 };
 
@@ -23,36 +22,28 @@ const isPathCompletion = (item) => {
  * @param {*} param0 
  * @returns 
  */
-exports.handleCompletion = function ({ documents, context, position, textDocument, configs }) {
+exports.handleCompletion = function ({ documents, position, textDocument, configs }) {
 
-    let document = documents.get(textDocument.uri);
-    let doc = document.getText();
-    let lines = doc.split(/\r?\n/g);
-    let lineText = lines[position.line];
+    let { lineContent, document } = getBaseInfo({ documents, textDocument, position });
 
-    if (isPathCompletion(lineText)) {
-        return handlePathCompletion({ lineText, document, configs });
+    if (isPathCompletion(lineContent)) {
+        return handlePathCompletion({ lineContent, document, configs });
     }
 
-    return [
-        {
-            label: "TypeScript",
-            kind: CompletionItemKind.Text,
-            data: 1
-        },
-        {
-            label: "JavaScript",
-            kind: CompletionItemKind.Text,
-            data: 2
-        }
-    ];
+    if (isGlobalVaribles(lineContent)) {
+        return handleGlobalVariblesCompletion({ lineContent, document, configs });
+    }
+    if (isVueVaribles(lineContent)) {
+
+    }
+    return null;
 };
 
 
-async function handlePathCompletion({ lineText, document, configs }) {
+async function handlePathCompletion({ lineContent, document, configs }) {
     try {
         const completionArray = [];
-        const urlInSourceCode = String(lineText).match(REG_UNDONE_PATH_REG)[1];
+        const urlInSourceCode = String(lineContent).match(REG_UNDONE_PATH_REG)[1];
         const { path: documentUriPath } = URI.parse(document.uri);;
 
         let normalizedAbsolutePath = getNormalizedAbsolutePath({
@@ -86,3 +77,13 @@ async function handlePathCompletion({ lineText, document, configs }) {
         return null;
     }
 }
+function handleGlobalVariblesCompletion({ lineContent, document, configs }) {
+    console.log(lineContent);
+    try {
+    return commonVaribles.records;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+

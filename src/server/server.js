@@ -19,8 +19,9 @@ let configs;
 const { TextDocument } = require("vscode-languageserver-textdocument");
 const { handleCompletion } = require("./handler.Completion");
 const { handleDefinition } = require("./handler.Definition");
-const { CLIENT_EMIT_TYPE_SAVE, CLIENT_EMIT_TYPE_DELETE } = require("../utils");
-const { records, ServerDb } = require("./server.db");
+const { CLIENT_EMIT_TYPE_SAVE, CLIENT_EMIT_TYPE_DELETE, CLIENT_EMIT_TYPE_COMMON_VARIBLES } = require("../utils");
+const { vueFiles, commonVaribles } = require("./server.db");
+const { analysisCommonVaribles } = require("../analysisCommonVaribles");
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -69,14 +70,17 @@ connection.onInitialize(params => {
 	};
 });
 
-connection.onRequest(CLIENT_EMIT_TYPE_DELETE, () => {
-	debugger;
-	return {
-		"server.port": 8080
-	};
+connection.onRequest(CLIENT_EMIT_TYPE_DELETE, ({ request }) => {
+	vueFiles.delete(request);
+	return true;
 });
 connection.onRequest(CLIENT_EMIT_TYPE_SAVE, (record) => {
-	ServerDb.save(record);
+	vueFiles.save(record);
+	return true;
+});
+connection.onRequest(CLIENT_EMIT_TYPE_COMMON_VARIBLES, async (fileInfo) => {
+	const records = await analysisCommonVaribles(fileInfo);
+	commonVaribles.records = records;
 	return true;
 });
 
@@ -134,8 +138,8 @@ connection.onDefinition(({ textDocument, position }) => {
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	/* TextDocumentPositionParams */
-	({ context, position, textDocument }) => {
-		return handleCompletion({ documents, context, position, textDocument, configs });
+	({ position, textDocument }) => {
+		return handleCompletion({ documents, position, textDocument, configs });
 	}
 );
 

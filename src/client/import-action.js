@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const { ServerDb } = require("./ServerDb");
+const { vueFiles } = require("./vueFiles");
 class ImportAction {
 	provideCodeActions(document, range, context, token) {
 		let actionContext = this.createContext(document, range, context, token);
@@ -16,7 +16,7 @@ class ImportAction {
 		if (diagnostic.message.includes("is not defined")) {
 			let imp = diagnostic.message.match(/'(.+)'/g)[0].replace(/'/g, "");
 			try {
-				let found = ServerDb.get(imp);
+				let found = vueFiles.get(imp);
 				if (found) {
 					context.imports = found;
 					return true;
@@ -34,7 +34,7 @@ class ImportAction {
 				.replace("Cannot find name", "")
 				.replace(/{|}|from|import|'|"| |\.|;/gi, "");
 			try {
-				let found = ServerDb.get(imp);
+				let found = vueFiles.get(imp);
 				if (found) {
 					context.imports = found;
 					return true;

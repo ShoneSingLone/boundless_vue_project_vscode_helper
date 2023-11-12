@@ -78,3 +78,7 @@ vsce publish patch, minor, or major
 - [vscode-path-alias](https://github.com/IWANABETHATGUY/vscode-path-alias)
 - [Auto Import](https://marketplace.visualstudio.com/items?itemName=steoates.autoimport)
 - [vue-helper](https://github.com/jiaolong1021/vue-helper/tree/master)
+- [esprima-ast-utils](https://www.npmjs.com/package/esprima-ast-utils)
+
+
+> Big thanks to everyone who has used this over the years. If you have found this helped at all, feel free to [buy me a coffee](https://www.buymeacoffee.com/shonesinglone)!

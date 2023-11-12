@@ -2,7 +2,7 @@
 const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
-const { CLIENT_EMIT_TYPE_DELETE, CLIENT_EMIT_TYPE_SAVE } = require("../utils");
+const { CLIENT_EMIT_TYPE_DELETE, CLIENT_EMIT_TYPE_SAVE, CLIENT_EMIT_TYPE_COMMON_VARIBLES } = require("../utils");
 const { merge } = require("lodash");
 
 class ClientScanner {
@@ -14,19 +14,21 @@ class ClientScanner {
 	 * @memberOf ClientScanner
 	 */
 	constructor({ configs, clientEmit }) {
-		const { findFilesInclude, businessPrefix, commonPrefix } = configs;
+		const { findFilesInclude, businessPrefix, commonPrefix } = configs.analysis;
 		this.commonPrefix = commonPrefix;
 		this.businessPrefix = businessPrefix;
 		this.findFilesInclude = findFilesInclude;
+		this.configsGlobalVaribles = configs.globalVaribles;
 		/*  */
 		this.clientEmit = clientEmit;
 	}
 
-	get speend() {
+	get spend() {
 		if (this.scanStarted) {
 			// @ts-ignore
-			let speend = this.scanStarted - Date.now();
-			return ` - ${Math.abs(speend / 1000)}s`;
+			let spend = this.scanStarted - Date.now();
+			this.scanStarted = 0;
+			return ` (${Math.abs(spend / 1000)}s)`;
 		}
 		return "";
 	}
@@ -35,7 +37,30 @@ class ClientScanner {
 		try {
 			this.scanStarted = new Date();
 			const files = await vscode.workspace.findFiles(this.findFilesInclude, "**/node_modules/**", 99999);
-			this.processWorkspaceFiles(files);
+			await this.processWorkspaceFiles(files);
+		} catch (error) {
+			console.error(error);
+		}
+		try {
+			const fsPath = path.resolve(vscode.workspace.rootPath, this.configsGlobalVaribles._);
+			this.updateGlobalVaribles({ file: { fsPath } });
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	/**
+	 * @description 
+	 * @param {any} { file } 
+	 * 
+	 * @memberOf ClientScanner
+	 */
+	async updateGlobalVaribles({ file }) {
+		try {
+			this.clientEmit({
+				type: CLIENT_EMIT_TYPE_COMMON_VARIBLES,
+				payload: file
+			});
 		} catch (error) {
 			console.error(error);
 		}
@@ -67,7 +92,7 @@ class ClientScanner {
 	async loadOneFile(file, isLastOne, isNeedAnalysis = false) {
 		await this.processOneFile(file, isNeedAnalysis);
 		if (isLastOne) {
-			vscode.window.showInformationMessage(`"boundless-vue-helper" Complete(${this.speend})`);
+			vscode.window.showInformationMessage(`"boundless-vue-helper" Complete${this.spend}`);
 		}
 	}
 
@@ -88,13 +113,13 @@ class ClientScanner {
 				return [`/common/${url}`];
 			}
 		})();
-		let requestParams = await analysisFile({ isNeedAnalysis, fileInfo, fileName, ext, urlInSourceCode, appName });
+		let requestParams = await analysisVueFile({ isNeedAnalysis, fileInfo, fileName, ext, urlInSourceCode, appName });
 		const res = await this.clientEmit(requestParams);;
 		return res;
 	}
 }
 exports.ClientScanner = ClientScanner;
-async function analysisFile({ isNeedAnalysis, fileInfo, fileName, ext, urlInSourceCode, appName }) {
+async function analysisVueFile({ isNeedAnalysis, fileInfo, fileName, ext, urlInSourceCode, appName }) {
 	let requestParams;
 
 	function newPayload(params = {}) {

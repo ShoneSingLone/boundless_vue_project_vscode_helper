@@ -1,7 +1,5 @@
-const { Location } = require("vscode-languageserver/node");
-const { getNormalizedAbsolutePath, newFileLocation } = require("../utils");
-const { URI } = require("vscode-uri");
-const { records } = require("./server.db");
+const { getNormalizedAbsolutePath, newFileLocation, getDocInfo: getBaseInfo } = require("../utils");
+const { vueFiles } = require("./server.db");
 
 
 const REG_VUE_PATH = /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/;
@@ -15,31 +13,26 @@ const REG_JS_PATH = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
  * @returns 
  */
 exports.handleDefinition = function ({ documents, textDocument, position, configs }) {
-    /* @ts-ignore */
-    let document = documents.get(textDocument.uri);
-    const { path: documentUriPath } = URI.parse(document.uri);
-    let doc = document.getText();
-    let lines = doc.split(/\r?\n/g);
-    let lineText = lines[position.line];
+    const { lineContent, documentUriPath } = getBaseInfo({ documents, textDocument, position });
 
     /* _.$importVue 路径 */
     let currRegExp = REG_VUE_PATH;
-    const isVueSFC_path = currRegExp.test(lineText);
+    const isVueSFC_path = currRegExp.test(lineContent);
     if (!isVueSFC_path) {
         /* 尝试tag */
         currRegExp = REG_COMPONENT_TAG;
-        const isTag_path = currRegExp.test(lineText);
+        const isTag_path = currRegExp.test(lineContent);
         if (!isTag_path) {
             /* 尝试 js 路径 */
             currRegExp = REG_JS_PATH;
-            const isJS_path = currRegExp.test(lineText);
+            const isJS_path = currRegExp.test(lineContent);
             if (!isJS_path) {
                 return;
             }
         }
     }
 
-    let selectedString = String(lineText).match(currRegExp)[1];
+    let selectedString = String(lineContent).match(currRegExp)[1];
 
 
     if (isVueSFC_path) {
@@ -53,7 +46,7 @@ exports.handleDefinition = function ({ documents, textDocument, position, config
         const matchString = fileInfo => {
             return tagName === fileInfo.fileName;
         };
-        const suggestions = records.filter(matchString).map(({ urlInSourceCode }) => {
+        const suggestions = vueFiles.records.filter(matchString).map(({ urlInSourceCode }) => {
             const normalizedAbsolutePath = getNormalizedAbsolutePath({
                 ROOT_PATH: configs.wsRoot || "",
                 documentUriPath,

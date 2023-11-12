@@ -37,22 +37,20 @@
 		"publish:patch": "vsce publish patch"
 	},
 	"dependencies": {
-		"esprima": "^4.0.1",
+		"esprima-ast-utils": "^0.0.7",
+		"esprima-next": "^5.8.4",
+		"i": "^0.3.7",
 		"lodash": "4.17.4",
-		"node-json-db": "0.7.3",
+		"npm": "^10.2.3",
 		"vscode-languageclient": "^9.0.1",
 		"vscode-languageserver": "^9.0.1",
 		"vscode-languageserver-textdocument": "^1.0.11",
 		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {
-		"@types/mocha": "^10.0.2",
 		"@types/node": "18.x",
 		"@types/vscode": "^1.83.0",
-		"@vscode/test-electron": "^2.3.4",
 		"eslint": "^8.50.0",
-		"glob": "^10.3.3",
-		"mocha": "^10.2.0",
-		"typescript": "^5.2.2"
+		"glob": "^10.3.3"
 	}
 }
