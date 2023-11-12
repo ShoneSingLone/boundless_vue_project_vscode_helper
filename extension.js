@@ -9,17 +9,14 @@ const {
 
 function activate(context) {
 	try {
-		let configs = require( path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js") );
-		configs.wsRoot = vc.workspace.rootPath;
-		console.log(
-			'"boundless-vue-helper" is now active!',
-			configs,
-			vc.workspace.rootPath
-		);
-		initPathAlias({ context, configs });
+		/* 只有root有configs.boundlessHelper.js才会激活插件 */
+		let configs = require(path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js"));
+		// configs.wsRoot = vc.workspace.rootPath;
+		// console.log( '"boundless-vue-helper" is now active!', configs, vc.workspace.rootPath );
+		// initPathAlias({ context, configs });
 		// initCompletion({ context, configs });
 		activateIntellisense({ context, configs });
-	} catch (error) {}
+	} catch (error) { }
 }
 
 /**

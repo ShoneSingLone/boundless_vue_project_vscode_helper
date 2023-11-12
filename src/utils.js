@@ -1,5 +1,6 @@
 const fs = require("fs").promises;
 const path = require("path");
+const { URI } = require("vscode-uri");
 
 exports.ALIAS_PATH_CACHE = {};
 
@@ -76,10 +77,16 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
 		}
 	})();
 
-	
-	return path.normalize(
-		normalizedAbsolutePath.split("/").filter(Boolean).join("/")
-	);
+
+	if (normalizedAbsolutePath) {
+
+
+		return path.normalize(
+			normalizedAbsolutePath.split("/").filter(Boolean).join("/")
+		);
+	} else {
+		return null;
+	}
 };
 
 exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
@@ -106,3 +113,21 @@ exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
 };
 
 exports.last = arr => (arr.length > 0 ? arr[arr.length - 1] : "");
+
+
+/**
+ * 
+ * @param {*} normalizedAbsolutePath 
+ * @returns Location
+ */
+function newFileLocation(normalizedAbsolutePath) {
+	const uri = URI.file(normalizedAbsolutePath);
+	return {
+		uri: uri.path,
+		range: {
+			start: { line: 0, character: 0 },
+			end: { line: 0, character: 0 }
+		}
+	};
+};
+exports.newFileLocation = newFileLocation;

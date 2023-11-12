@@ -18,6 +18,7 @@ let configs;
 
 const { TextDocument } = require("vscode-languageserver-textdocument");
 const { handleCompletion } = require("./handleCompletion");
+const { handleDefinition } = require("./handleDefinition");
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -113,8 +114,8 @@ connection.onHover(async ({ textDocument, position }) => {
 	};
 });
 
-connection.onDefinition(({ textDocument, position }) => { 
-	
+connection.onDefinition(({ textDocument, position }) => {
+	return handleDefinition({ documents, textDocument, position, configs });
 });
 
 
@@ -134,4 +135,5 @@ connection.onCompletionResolve(
 
 documents.listen(connection);
 connection.listen();
+
 

@@ -64,7 +64,7 @@ exports.DefinitionPathAlias = class DefinitionPathAlias {
 				return tagName === fileInfo.fileName;
 			};
 
-			const suggestions = ImportDb.all()
+			const suggestions = ImportDb.records
 				.filter(matchString)
 				.map(({ fileInfo }) => {
 					const normalizedAbsolutePath = getNormalizedAbsolutePath({

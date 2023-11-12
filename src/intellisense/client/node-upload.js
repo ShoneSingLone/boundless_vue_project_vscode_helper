@@ -15,7 +15,7 @@ class NodeUpload {
 				let map = mappings[key];
 				if (map) {
 					map.forEach(exp => {
-						ImportDb.saveImport(exp, exp, { fsPath: key }, false, true);
+						ImportDb.save(exp, exp, { fsPath: key }, false, true);
 					});
 				}
 			}

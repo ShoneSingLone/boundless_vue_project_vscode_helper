@@ -18,9 +18,6 @@ const { LanguageClient, TransportKind } = require("vscode-languageclient/node");
  */
 function activate({ context, configs }) {
 	try {
-		if (!context.workspaceState.get("boundlessAutoImportConfigs")) {
-			context.workspaceState.update("boundlessAutoImportConfigs", {});
-		}
 		new AutoImport({ context, configs });
 	} catch (error) {
 		console.error(error);

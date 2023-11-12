@@ -1,7 +1,4 @@
 "use strict";
-const vscode = require("vscode");
-const { PathHelper } = require("./helpers/path-helper");
-
 class ImportObject {
 	/**
 	 * fileName, fileInfo, isDefault, discovered
@@ -18,47 +15,28 @@ class ImportObject {
 		this.isDefault = isDefault;
 		this.discovered = discovered;
 	}
-	getPath(document) {
-		if (this.discovered) {
-			return this.fileInfo.fsPath;
-		}
-		const absolute = vscode.workspace
-			.getConfiguration("autoimport")
-			.get("absolute");
-		let basePath = document.uri.fsPath;
-		if (absolute) {
-			const sourceRoot = vscode.workspace
-				.getConfiguration("autoimport")
-				.get("sourceRoot");
-			basePath = PathHelper.joinPaths(vscode.workspace.rootPath, sourceRoot);
-		}
-		return PathHelper.normalisePath(
-			PathHelper.getRelativePath(basePath, this.fileInfo.fsPath),
-			absolute
-		);
-	}
 }
 exports.ImportObject = ImportObject;
-class ImportDb {
-	static get count() {
-		return ImportDb.imports.length;
-	}
-	static all() {
-		return ImportDb.imports;
-	}
-	static getImport(name) {
-		return ImportDb.imports.filter(i => i.name === name);
-	}
-	static delete(request) {
+
+
+const records = [];
+exports.ImportDb = new Proxy({
+	all() {
+		return records;
+	},
+	get(name) {
+		return records.filter(i => i.name === name);
+	},
+	delete(request) {
 		try {
-			let index = ImportDb.imports.findIndex(
+			let index = records.findIndex(
 				m => m.file.fsPath === request.file.fsPath
 			);
 			if (index !== -1) {
-				ImportDb.imports.splice(index, 1);
+				records.splice(index, 1);
 			}
-		} catch (error) {}
-	}
+		} catch (error) { }
+	},
 	/**
 	 * @description
 	 * fileName, fileContentString, fileInfo
@@ -73,7 +51,7 @@ class ImportDb {
 	 *
 	 * @memberOf ImportDb
 	 */
-	static saveImport(
+	save(
 		fileName,
 		fileContentString,
 		fileInfo,
@@ -84,14 +62,30 @@ class ImportDb {
 		if (fileName === "" || fileName.length === 1) {
 			return;
 		}
-		let obj = new ImportObject(fileName, fileInfo, isDefault, discovered);
-		let exists = ImportDb.imports.findIndex(
+		let obj = { fileName, fileInfo, isDefault, discovered };
+		let exists = records.findIndex(
 			m => m.name === obj.fileName && m.file.fsPath === fileInfo.fsPath
 		);
 		if (exists === -1) {
-			ImportDb.imports.push(obj);
+			records.push(obj);
+			console.log("🚀 ~ file: import-db.js:71 ~ records:", records);
 		}
 	}
-}
-ImportDb.imports = new Array();
-exports.ImportDb = ImportDb;
+}, {
+	get(obj, prop) {
+		if (prop === 'count') {
+			return records.length;
+		}
+		if (prop === 'records') {
+			return records;
+		}
+		return obj[prop];
+	},
+	set(obj, prop, value) {
+		obj[prop] = value;
+		return true;
+	}
+});
+
+
+exports.records = records;

@@ -74,7 +74,7 @@ class ImportScanner {
 		if (isNeedAnalysis) {
 			fs.promises.readFile(fileInfo.fsPath, "utf-8").then(content => {
 				/* 解析，定义和注释 */
-				ImportDb.saveImport(
+				ImportDb.save(
 					fileName.replace(ext, ""),
 					content,
 					fileInfo,
@@ -83,7 +83,7 @@ class ImportScanner {
 				);
 			});
 		} else {
-			ImportDb.saveImport(
+			ImportDb.save(
 				fileName.replace(ext, ""),
 				"",
 				fileInfo,

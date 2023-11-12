@@ -29,7 +29,7 @@ class ImportCompletion {
 				return new RegExp(`${wordToComplete}`, "ig").test(fileInfo.fileName);
 			};
 
-			const suggestions = ImportDb.all()
+			const suggestions = ImportDb.records
 				.filter(matchString)
 				.map(i => this.buildCompletionItem(i, document));
 

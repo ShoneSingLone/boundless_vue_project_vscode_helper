@@ -16,7 +16,7 @@ class ImportAction {
 		if (diagnostic.message.includes("is not defined")) {
 			let imp = diagnostic.message.match(/'(.+)'/g)[0].replace(/'/g, "");
 			try {
-				let found = ImportDb.getImport(imp);
+				let found = ImportDb.get(imp);
 				if (found) {
 					context.imports = found;
 					return true;
@@ -34,7 +34,7 @@ class ImportAction {
 				.replace("Cannot find name", "")
 				.replace(/{|}|from|import|'|"| |\.|;/gi, "");
 			try {
-				let found = ImportDb.getImport(imp);
+				let found = ImportDb.get(imp);
 				if (found) {
 					context.imports = found;
 					return true;
