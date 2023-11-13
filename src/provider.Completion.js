@@ -51,21 +51,6 @@ class ProviderCompletion {
 };
 
 
-exports.register = (context) => {
-    const subscription = vc.languages.registerCompletionItemProvider(
-        [
-            { scheme: "file", language: "javascript" },
-            { scheme: "file", language: "vue" }
-        ],
-        new ProviderCompletion(),
-        "/",
-        "."
-    );
-    context.subscriptions.push(subscription);
-};
-
-
-
 async function handlePathCompletion({ urlInSourceCode, documentUriPath }) {
     try {
         const completionArray = [];
@@ -111,3 +96,17 @@ function handleGlobalVariblesCompletion(range) {
         return null;
     }
 }
+
+
+exports.register = (context) => {
+    const subscription = vc.languages.registerCompletionItemProvider(
+        [
+            { scheme: "file", language: "javascript" },
+            { scheme: "file", language: "vue" }
+        ],
+        new ProviderCompletion(),
+        "/",
+        "."
+    );
+    context.subscriptions.push(subscription);
+};

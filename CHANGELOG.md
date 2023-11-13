@@ -4,7 +4,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 2023年11月14日
 
+- _.$xxxx函数的跳转
 
 ## 2023年11月13日
 

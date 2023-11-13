@@ -130,14 +130,10 @@ exports.last = arr => (arr.length > 0 ? arr[arr.length - 1] : "");
  * @returns Location
  */
 function newFileLocation(normalizedAbsolutePath) {
-	const uri = URI.file(normalizedAbsolutePath);
-	return {
-		uri: uri.path,
-		range: {
-			start: { line: 0, character: 0 },
-			end: { line: 0, character: 0 }
-		}
-	};
+	return new vc.Location(
+		vc.Uri.file(normalizedAbsolutePath),
+		new vc.Position(0, 0)
+	);
 };
 exports.newFileLocation = newFileLocation;
 
