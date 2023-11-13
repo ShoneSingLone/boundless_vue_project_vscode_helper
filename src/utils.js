@@ -1,6 +1,25 @@
-const { workspace, Range } = require("vscode");
 const fs = require("fs").promises;
 const path = require("path");
+const { URI } = require("vscode-uri");
+
+const ALIAS_PATH_CACHE = {};
+
+exports.CLIENT_EMIT_TYPE_DELETE = "shone.sing.lone.client.emit.type.delete";
+exports.CLIENT_EMIT_TYPE_SAVE = "shone.sing.lone.client.emit.type.save";
+exports.CLIENT_EMIT_TYPE_COMMON_VARIBLES = "shone.sing.lone.client.emit.type.common.varibles.refresh";
+
+
+exports.getDocInfo = function ({ documents, textDocument, position }) {
+	let document = documents.get(textDocument.uri);
+	const { path: documentUriPath } = URI.parse(document.uri);
+	let doc = document.getText();
+	let lines = doc.split(/\r?\n/g);
+	return {
+		document,
+		documentUriPath,
+		lineContent: lines[position.line] || ""
+	};
+};
 
 exports.getInsertPathRange = function getInsertPathRange(
 	range,
@@ -8,24 +27,13 @@ exports.getInsertPathRange = function getInsertPathRange(
 	length
 ) {
 	const numberOfEndPoint = document.offsetAt(range.end);
-	const end = document.positionAt(numberOfEndPoint - 1);
-	const start = document.positionAt(numberOfEndPoint - length - 1);
-	return new Range(start, end);
-};
+	const endPosition = document.positionAt(numberOfEndPoint - 1);
+	const startPosition = document.positionAt(numberOfEndPoint - length - 1);
 
-/**
- * 返回给定的uri属于的workspaceFolder 索引
- *
- * @export
- * @param {Uri} uri
- * @returns {(number | undefined)}
- */
-exports.getIndexOfWorkspaceFolder = function getIndexOfWorkspaceFolder(uri) {
-	const ws = workspace.getWorkspaceFolder(uri);
-	if (ws) {
-		return ws.index;
-	}
-	return undefined;
+	return {
+		start: startPosition,
+		end: endPosition
+	};
 };
 
 exports.isObject = function isObject(obj) {
@@ -37,43 +45,43 @@ exports.isObject = function isObject(obj) {
  * @returns
  */
 exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
-  DOC_URI_PATH,
-  ALIAS_PATH,
-  ROOT_PATH,
-  ALIAS_ARRAY,
-  ALIAS_PATH_CACHE,
-  isGetDirContent
+	documentUriPath,
+	urlInSourceCode,
+	ROOT_PATH,
+	configsAliasArray,
+	isGetDir
 }) {
-  const ext = path.extname(ALIAS_PATH);
-  if (!ext && !isGetDirContent) {
-    /* 尝试获取文件 */
-    ALIAS_PATH += ".js";
-  }
-
-	if (ALIAS_PATH_CACHE[ALIAS_PATH]) {
-		return ALIAS_PATH_CACHE[ALIAS_PATH];
+	const ext = path.extname(urlInSourceCode);
+	if (!ext && !isGetDir) {
+		/* 尝试获取文件 */
+		urlInSourceCode += ".js";
 	}
-	let isInBusiness = /\/business_(.*)\//.test(DOC_URI_PATH);
+
+	if (ALIAS_PATH_CACHE[urlInSourceCode]) {
+		return ALIAS_PATH_CACHE[urlInSourceCode];
+	}
+
+
+	let isInBusiness = /\/business_(.*)\//.test(documentUriPath);
 	let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
 	let normalizedAbsolutePath = (() => {
 		if (isInBusiness) {
-			[SRC_ROOT_PATH, FILE_PATH] = DOC_URI_PATH.split("business_");
+			[SRC_ROOT_PATH, FILE_PATH] = documentUriPath.split("business_");
 			[APP_NAME] = FILE_PATH.split("/");
 		}
 
-		if (/^@\/(.*)/.test(ALIAS_PATH)) {
+		if (/^@\/(.*)/.test(urlInSourceCode)) {
 			/* 讲道理，_s的文件不会访问business_下的文件 */
-			return String(ALIAS_PATH).replace(
+			return String(urlInSourceCode).replace(
 				/^@/,
 				`${SRC_ROOT_PATH}/business_${APP_NAME}`
 			);
 		}
 
 		let isInAliasMap = false;
-		for (const element of ALIAS_ARRAY) {
-			const [reg, target] = element;
-			if (new RegExp(reg).test(ALIAS_PATH)) {
-				SRC_ROOT_PATH = ALIAS_PATH.replace(new RegExp(reg), target);
+		for (const [aliasRegExp, aliasPath] of configsAliasArray) {
+			if (new RegExp(aliasRegExp).test(urlInSourceCode)) {
+				SRC_ROOT_PATH = urlInSourceCode.replace(new RegExp(aliasRegExp), aliasPath);
 				isInAliasMap = true;
 				break;
 			}
@@ -83,9 +91,17 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
 			return `${ROOT_PATH}${SRC_ROOT_PATH}`;
 		}
 	})();
-	return path.normalize(
-		normalizedAbsolutePath.split("/").filter(Boolean).join("/")
-	);
+
+
+	if (normalizedAbsolutePath) {
+
+
+		return path.normalize(
+			normalizedAbsolutePath.split("/").filter(Boolean).join("/")
+		);
+	} else {
+		return null;
+	}
 };
 
 exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
@@ -112,3 +128,60 @@ exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
 };
 
 exports.last = arr => (arr.length > 0 ? arr[arr.length - 1] : "");
+
+
+/**
+ * 
+ * @param {*} normalizedAbsolutePath 
+ * @returns Location
+ */
+function newFileLocation(normalizedAbsolutePath) {
+	const uri = URI.file(normalizedAbsolutePath);
+	return {
+		uri: uri.path,
+		range: {
+			start: { line: 0, character: 0 },
+			end: { line: 0, character: 0 }
+		}
+	};
+};
+exports.newFileLocation = newFileLocation;
+
+
+exports.VueLoader = function (sourceCodeString) {
+	function getSource(source, pickType) {
+		try {
+			var regex = new RegExp(`<${pickType}[^(>|())]*>`);
+			var openingTag = source.match(regex);
+			var targetSource = "";
+			if (!openingTag) {
+				return [targetSource, {}];
+			} else {
+				openingTag = openingTag[0];
+				targetSource = source.slice(source.indexOf(openingTag) + openingTag.length, source.lastIndexOf("</" + pickType + ">"));
+			}
+			/* TODO: jsx解析*/
+			if (["template", "setup-render"].includes(pickType)) {
+				targetSource = targetSource.replace(/`/g, "\\`");
+			}
+			return [targetSource];
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	function splitCode() {
+		const [scritpSourceCode] = getSource(sourceCodeString, "script");
+		const [templateSourceCode] = getSource(sourceCodeString, "template");
+		const [styleSourceCode] = getSource(sourceCodeString, "style");
+		const [setupRenderSourceCode, { scope }] = getSource(sourceCodeString, "setup-render");
+		return {
+			scritpSourceCode,
+			templateSourceCode,
+			styleSourceCode,
+			setupRenderSourceCode
+		};
+	}
+
+	return splitCode();
+};

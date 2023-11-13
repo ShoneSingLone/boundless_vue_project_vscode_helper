@@ -1,11 +1,6 @@
 # [主项目 boundless_vue_project](https://github.com/ShoneSingLone/boundless_vue_project)
 
-## [配套插件 boundless-vue-helper](https://marketplace.visualstudio.com/items?itemName=ShoneSingLone.boundless-vue-helper)
-
-npm install -g @vscode/vsce
-vsce package
-vsce login
-vsce publish patch, minor, or major
+[配套插件 boundless-vue-helper](https://marketplace.visualstudio.com/items?itemName=ShoneSingLone.boundless-vue-helper)
 
 ## alias：跳转对应文件
 
@@ -18,7 +13,7 @@ module.exports = {
 	alias: {
 		"^/common/": "/static_vue2/common/"
 	},
-	autoImport: {
+	analysis: {
 		findFilesInclude: "static_vue2/**/*.vue",
 		businessPrefix: "static_vue2/business_",
 		commonPrefix: "static_vue2/common/"
@@ -48,10 +43,6 @@ module.exports = {
 - xsfc SFC 模板（基础款）
 - ximv \_.$importVue
 
-### API
-
-> [vscode-path-alias](https://github.com/IWANABETHATGUY/vscode-path-alias)
-
 VSCode CodeActionProvider 是一个用于提供代码修复功能的插件。它可以帮助用户自动修复代码中的错误、提供代码重构建议以及其他编辑器建议。
 
 ### context.workspaceState.get('boundlessAutoImportConfigs')
@@ -62,3 +53,32 @@ context.workspaceState.get("boundlessAutoImportConfigs");
 //更新
 context.workspaceState.update("boundlessAutoImportConfigs", {});
 ```
+
+- Vue.\_开头的业务函数 比如 \_api \_opts .vue
+
+- \_.$开头的通用工具函数 在 common.js
+
+- 同名组件跳转
+
+```sh
+npm install -g @vscode/vsce
+vsce package
+vsce login
+vsce publish patch, minor, or major
+```
+
+词法高亮 词法分析
+
+
+## hover函数注释信息
+
+## 参考
+
+- [如何开发一款 VS Code 语言插件 —— 以 vetur 为例](https://www.bilibili.com/video/BV1sh411z7Vq/?spm_id_from=333.880.my_history.page.click&vd_source=c585c94b49670e0f28d6c87eb2271489)
+- [vscode-path-alias](https://github.com/IWANABETHATGUY/vscode-path-alias)
+- [Auto Import](https://marketplace.visualstudio.com/items?itemName=steoates.autoimport)
+- [vue-helper](https://github.com/jiaolong1021/vue-helper/tree/master)
+- [esprima-ast-utils](https://www.npmjs.com/package/esprima-ast-utils)
+
+
+> Big thanks to everyone who has used this over the years. If you have found this helped at all, feel free to [buy me a coffee](https://www.buymeacoffee.com/shonesinglone)!
