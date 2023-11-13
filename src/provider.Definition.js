@@ -1,5 +1,5 @@
 const { normalizedAbsolutePathForFS, newFileLocation, getDocInfo: getBaseInfo } = require("../utils");
-const { vueFiles } = require("./server.db");
+const { store } = require("./store");
 
 
 const REG_VUE_PATH = /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/;
@@ -12,7 +12,7 @@ const REG_JS_PATH = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
  * @param {*} param0 
  * @returns 
  */
-exports.handleDefinition = async function ({ documents, textDocument, position, configs }) {
+module.exports = async function ({ documents, textDocument, position }) {
     const { lineContent, documentUriPath } = getBaseInfo({ documents, textDocument, position });
 
     /* _.$importVue 路径 */
@@ -39,13 +39,11 @@ exports.handleDefinition = async function ({ documents, textDocument, position, 
         selectedString = `${selectedString}.vue`;
     }
 
-
     if (currRegExp === REG_COMPONENT_TAG) {
-        return handleJumpToComponentTag({ tagName: selectedString, configs, documentUriPath });
+        return handleJumpToComponentTag({ tagName: selectedString, documentUriPath });
     }
 
     let normalizedAbsolutePath = normalizedAbsolutePathForFS({
-        ROOT_PATH: configs.wsRoot || "",
         documentUriPath,
         urlInSourceCode: selectedString,
     });
@@ -56,13 +54,12 @@ exports.handleDefinition = async function ({ documents, textDocument, position, 
     return null;
 };
 
-function handleJumpToComponentTag({ tagName, configs, documentUriPath }) {
+function handleJumpToComponentTag({ tagName, documentUriPath }) {
     const matchString = fileInfo => {
         return tagName === fileInfo.fileName;
     };
-    const suggestions = vueFiles.records.filter(matchString).map(({ urlInSourceCode }) => {
+    const suggestions = store.vueFiles.records.filter(matchString).map(({ urlInSourceCode }) => {
         const normalizedAbsolutePath = normalizedAbsolutePathForFS({
-            ROOT_PATH: configs.wsRoot || "",
             documentUriPath,
             urlInSourceCode,
         });

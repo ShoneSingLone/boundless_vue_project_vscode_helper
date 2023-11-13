@@ -13,8 +13,6 @@ exports.analysisCommonVaribles = async function ({ fsPath }) {
         } catch (error) {
             console.error(error);
         }
-        fs.writeFileSync('./ast.json', JSON.stringify(ast, null, 2));
-
         const target = [];
         traverse(ast, function (node) {
             const isAssignmentExpression = node?.type === "ExpressionStatement" && node?.expression?.type === "AssignmentExpression";
@@ -41,6 +39,7 @@ exports.analysisCommonVaribles = async function ({ fsPath }) {
              * @type import('vscode-languageserver/node').CompletionItem
              */
             return {
+                fsPath,
                 documentation: detail || "",
                 node,
                 label: node.expression.left.property.name,

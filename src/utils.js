@@ -1,6 +1,8 @@
 const fs = require("fs").promises;
 const path = require("path");
 const { URI } = require("vscode-uri");
+const { store } = require("./store");
+const vc = require("vscode");
 
 const ALIAS_PATH_CACHE = {};
 
@@ -44,13 +46,7 @@ exports.isObject = function isObject(obj) {
  * @param {*} param0
  * @returns
  */
-exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
-	documentUriPath,
-	urlInSourceCode,
-	ROOT_PATH,
-	configsAliasArray,
-	isGetDir
-}) {
+exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ documentUriPath, urlInSourceCode, isGetDir }) {
 	const ext = path.extname(urlInSourceCode);
 	if (!ext && !isGetDir) {
 		/* 尝试获取文件 */
@@ -79,7 +75,7 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
 		}
 
 		let isInAliasMap = false;
-		for (const [aliasRegExp, aliasPath] of configsAliasArray) {
+		for (const [aliasRegExp, aliasPath] of Object.entries(store.configs.alias)) {
 			if (new RegExp(aliasRegExp).test(urlInSourceCode)) {
 				SRC_ROOT_PATH = urlInSourceCode.replace(new RegExp(aliasRegExp), aliasPath);
 				isInAliasMap = true;
@@ -88,14 +84,12 @@ exports.getNormalizedAbsolutePath = function getNormalizedAbsolutePath({
 		}
 
 		if (isInAliasMap) {
-			return `${ROOT_PATH}${SRC_ROOT_PATH}`;
+			return `${vc.workspace.rootPath}${SRC_ROOT_PATH}`;
 		}
 	})();
 
 
 	if (normalizedAbsolutePath) {
-
-
 		return path.normalize(
 			normalizedAbsolutePath.split("/").filter(Boolean).join("/")
 		);
