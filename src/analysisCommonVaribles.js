@@ -2,7 +2,7 @@ var fs = require('fs');
 var esprima = require('esprima-next');
 var { traverse, attachComments } = require('esprima-ast-utils/lib/walk');
 const { map } = require('lodash');
-const { CompletionItemKind } = require('vscode-languageserver/node');
+const { CompletionItemKind } = require('vscode');
 
 exports.analysisCommonVaribles = async function ({ fsPath }) {
     try {
