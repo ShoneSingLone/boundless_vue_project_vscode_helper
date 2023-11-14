@@ -88,7 +88,7 @@ function handleGlobalVariblesCompletion(range) {
             const item = new CompletionItem(record.label, record.kind);
             item.documentation = record.documentation;
             /* https://stackoverflow.com/questions/72900239/how-to-delete-trigger-character-when-using-vscode-api-completion-feature */
-            item.additionalTextEdits = [new vc.TextEdit(range, "_\.")];
+            item.additionalTextEdits = [new vc.TextEdit(range, "_.")];
             return item;
         });
     } catch (error) {
