@@ -11,7 +11,7 @@ const {
     asyncAllDirAndFile
 } = require("./utils");
 const { store } = require("./store");
-const { map } = require("lodash");
+const { map, reduce } = require("lodash");
 
 /**
  * @type import("vscode").CompletionItemProvider
@@ -21,6 +21,7 @@ class ProviderCompletion {
     async provideCompletionItems(document, position) {
         const REG_UNDONE_PATH_REG = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
         const REG_IS_GLOBAL_VARIBLES_REG = /_\.(.*)/;
+        const REG_VUE_VARIABLES_REG = /(Vue\._(.*)(\.(.*))?)/;
 
         const isPathCompletion = () => {
             return document.getWordRangeAtPosition(position, REG_UNDONE_PATH_REG);
@@ -29,7 +30,7 @@ class ProviderCompletion {
             return document.getWordRangeAtPosition(position, REG_IS_GLOBAL_VARIBLES_REG);
         };
         const isVueVaribles = () => {
-            return document.getWordRangeAtPosition(position, REG_UNDONE_PATH_REG);
+            return document.getWordRangeAtPosition(position, REG_VUE_VARIABLES_REG);
         };
         const { path: documentUriPath } = document.uri;
 
@@ -44,7 +45,8 @@ class ProviderCompletion {
             return handleGlobalVariblesCompletion(range);
         }
         if (range = isVueVaribles()) {
-
+            const property = document.getText(range).match(REG_VUE_VARIABLES_REG)[1];
+            return handleVueVariblesCompletion({ range, property });
         }
         return null;
     }
@@ -91,6 +93,29 @@ function handleGlobalVariblesCompletion(range) {
             item.additionalTextEdits = [new vc.TextEdit(range, "_.")];
             return item;
         });
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+function handleVueVariblesCompletion({ range, property }) {
+    try {
+        return reduce(store.vueVaribles.collection, (target, node, label) => {
+            if (label.includes(property)) {
+                let kind = CompletionItemKind.Property;
+                // @ts-ignore
+                if (node.type === "ExpressionStatement") {
+                    kind = CompletionItemKind.Method;
+                }
+                const item = new CompletionItem(label, kind);
+                // item.documentation = record.documentation;
+                /* https://stackoverflow.com/questions/72900239/how-to-delete-trigger-character-when-using-vscode-api-completion-feature */
+                item.additionalTextEdits = [new vc.TextEdit(range, "")];
+                target.push(item);
+            }
+
+            return target;
+        }, []);
     } catch (error) {
         console.error(error);
         return null;

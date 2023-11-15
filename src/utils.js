@@ -2,7 +2,6 @@ const fs = require("fs").promises;
 const path = require("path");
 const { URI } = require("vscode-uri");
 const { store } = require("./store");
-const vc = require("vscode");
 
 const ALIAS_PATH_CACHE = {};
 
@@ -84,6 +83,7 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 		}
 
 		if (isInAliasMap) {
+			const vc = require("vscode");
 			return `${vc.workspace.rootPath}${SRC_ROOT_PATH}`;
 		}
 	})();
@@ -130,6 +130,7 @@ exports.last = arr => (arr.length > 0 ? arr[arr.length - 1] : "");
  * @returns Location
  */
 function newFileLocation(normalizedAbsolutePath) {
+	const vc = require("vscode");
 	return new vc.Location(
 		vc.Uri.file(normalizedAbsolutePath),
 		new vc.Position(0, 0)

@@ -1,7 +1,7 @@
 const vc = require("vscode");
 const path = require("path");
 const { registerProvider } = require("./src/registerProvider.js");
-const { runScanner } = require("./src/runScanner.js");
+const { runScan } = require("./src/runScan.js");
 const { store } = require("./src/store.js");
 
 /**
@@ -13,7 +13,7 @@ function activate(context) {
 		store.configs = require(path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js"));
 		registerProvider({ context });
 		/* （全局变量scan） */
-		runScanner({ context });
+		runScan({ context });
 	} catch (error) {
 		console.error(error);
 	}

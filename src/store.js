@@ -1,5 +1,19 @@
-const { find } = require("lodash");
+const { find, merge } = require("lodash");
 
+
+const vueVaribles = {
+    collection: {},
+    save(newCollection) {
+        this.collection = merge(newCollection, this.collection);
+    },
+    get(label) {
+        const [, id] = label.split(".");
+        return {
+            absolutePath: this.collection[`Vue.${id}`].absolutePath,
+            node: this.collection[label]
+        };
+    }
+};
 const vueFiles = {
     records: [],
     get(name) {
@@ -64,6 +78,7 @@ const utilsVar = {
 
 
 exports.store = {
+    vueVaribles,
     utilsVar,
     vueFiles,
     configs: {
@@ -79,8 +94,8 @@ exports.store = {
             _: 'static_vue2/common/libs/common.js',
         },
         vueVaribles: {
-            _api: "static_vue2/business_anxin/utils/api.vue",
-            _opts: "static_vue2/business_anxin/utils/opts.vue",
+            _api: "static_vue2/business_xxxAppNamexxx/utils/api.vue",
+            _opts: "static_vue2/business_xxxAppNamexxx/utils/opts.vue",
         }
     }
 };
