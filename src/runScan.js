@@ -57,9 +57,6 @@ class Scanner {
                     return [CompletionItemKind.Property];
                 })();
 
-                /**
-                 * @type import('vscode-languageserver/node').CompletionItem
-                 */
                 return {
                     fsPath: file.fsPath,
                     documentation: detail || "",
