@@ -40,12 +40,7 @@
 	"dependencies": {
 		"esprima-ast-utils": "^0.0.7",
 		"esprima-next": "^5.8.4",
-		"i": "^0.3.7",
 		"lodash": "4.17.4",
-		"npm": "^10.2.3",
-		"vscode-languageclient": "^9.0.1",
-		"vscode-languageserver": "^9.0.1",
-		"vscode-languageserver-textdocument": "^1.0.11",
 		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {

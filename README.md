@@ -10,14 +10,21 @@
 
 ```js
 module.exports = {
-	alias: {
-		"^/common/": "/static_vue2/common/"
-	},
-	analysis: {
-		findFilesInclude: "static_vue2/**/*.vue",
-		businessPrefix: "static_vue2/business_",
-		commonPrefix: "static_vue2/common/"
-	}
+    "alias": {
+        "^/common/": "/static_vue2/common/"
+    },
+    "analysis": {
+        findFilesInclude: "static_vue2/**/*.vue",
+        businessPrefix: "static_vue2/business_",
+        commonPrefix: "static_vue2/common/",
+    },
+    "globalVaribles": {
+        _: 'static_vue2/common/libs/common.js',
+    },
+    vueVaribles: {
+        _api: "static_vue2/business_xxxAppNamexxx/utils/api.vue",
+        _opts: "static_vue2/business_xxxAppNamexxx/utils/opts.vue",
+    }
 };
 ```
 

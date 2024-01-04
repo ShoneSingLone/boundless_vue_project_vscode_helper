@@ -2,8 +2,12 @@ const vscode = require("vscode");
 const path = require("path");
 const fs = require("fs");
 const { store } = require("./store");
-const { analysisCommonVaribles } = require("./analysisCommonVaribles");
-const { merge, some } = require("lodash");
+const { analysisCommonVaribles, analysisVueVaribles } = require("./analysisVaribles");
+const { merge, map } = require("lodash");
+const { VueLoader } = require("./utils");
+const { default: esprima } = require("esprima-next");
+const { attachComments, traverse } = require("esprima-ast-utils/lib/walk");
+const { CompletionItemKind } = require("vscode");
 
 class Scanner {
     get spend() {
@@ -40,8 +44,27 @@ class Scanner {
      */
     async updateGlobalVaribles({ file }) {
         try {
-            const records = await analysisCommonVaribles(file);
-            store.utilsVar.records = records;
+            const { tipsArray, sourceCode } = await analysisCommonVaribles(file);
+            store.utilsVar.records = map(tipsArray, node => {
+                const [kind, detail] = (function () {
+                    if (["CallExpression", "FunctionExpression", "ArrowFunctionExpression"].includes(node.expression.right.type)) {
+                        const detail = sourceCode.substring(node.range[0], node.range[1]);
+                        return [CompletionItemKind.Method, detail];
+                    }
+                    if (['Identifier'].includes(node?.expression?.right?.type)) {
+                        return [CompletionItemKind.Variable];
+                    }
+                    return [CompletionItemKind.Property];
+                })();
+
+                return {
+                    fsPath: file.fsPath,
+                    documentation: detail || "",
+                    node,
+                    label: node.expression.left.property.name,
+                    kind
+                };
+            });
         } catch (error) {
             console.error(error);
         }
@@ -49,7 +72,7 @@ class Scanner {
 
     editOne(request) {
         this.deleteOne(request);
-        this.loadOneFile(request.file, true, request.isNeedAnalysis);
+        this.loadOneFile(request.file);
     }
 
     async deleteOne(request) {
@@ -65,14 +88,14 @@ class Scanner {
         }
     }
 
-    async loadOneFile(file, isLastOne, isNeedAnalysis = false) {
-        await this.processOneFile(file, isNeedAnalysis);
+    async loadOneFile(file, isLastOne) {
+        await this.processOneFile(file);
         if (isLastOne) {
             vscode.window.showInformationMessage(`"boundless-vue-helper" Complete${this.spend}`);
         }
     }
 
-    async processOneFile(fileInfo, isNeedAnalysis = false) {
+    async processOneFile(fileInfo) {
         const fileName = path.basename(fileInfo.path);
         const ext = path.extname(fileInfo.path);
 
@@ -89,29 +112,18 @@ class Scanner {
                 return [`/common/${url}`];
             }
         })();
-        return analysisVueFile({ isNeedAnalysis, fileInfo, fileName, ext, urlInSourceCode, appName });
+        return analysisVueFile({ fileInfo, fileName, ext, urlInSourceCode, appName });
     }
 }
 
 
-exports.runScanner = function ({ context }) {
+exports.runScan = function ({ context }) {
     (function registeCommand() {
         /* 可以通过ctrl+shift+p打开命令面板,manual 调用 scanner*/
         let commandScanner = vscode.commands.registerCommand("shone.sing.lone.scanFile", request => scanFile(request));
         context.subscriptions.push(commandScanner,);
     })();
     const SCANNER = new Scanner();
-
-    /**
-     * @description IntellisenseClient.sendRequest;
-     * @param {any} { type, payload } 
-    */
-    function checkAnalysisRequired(file) {
-        return some(store.configs.vueVaribles, path => {
-            return file.path.indexOf(path) > -1;
-        });
-    }
-
 
     function scan() {
         (function watchVueSFCFiles() {
@@ -122,13 +134,10 @@ exports.runScanner = function ({ context }) {
                 )
             );
             watcher.onDidChange(file => {
-                if (checkAnalysisRequired(file)) {
-                    vscode.commands.executeCommand("shone.sing.lone.scanFile", {
-                        file,
-                        edit: true,
-                        isNeedAnalysis: true
-                    });
-                }
+                vscode.commands.executeCommand("shone.sing.lone.scanFile", {
+                    file,
+                    edit: true,
+                });
             });
 
             watcher.onDidCreate(file => {
@@ -163,7 +172,7 @@ exports.runScanner = function ({ context }) {
                 });
             })();
         })();
-        
+
         vscode.window.showInformationMessage(
             `"boundless-vue-helper" Building cache...`
         );
@@ -184,7 +193,7 @@ exports.runScanner = function ({ context }) {
 };
 
 
-async function analysisVueFile({ isNeedAnalysis, fileInfo, fileName, ext, urlInSourceCode, appName }) {
+async function analysisVueFile({ fileInfo, fileName, ext, urlInSourceCode, appName }) {
     let requestParams;
 
     function newPayload(params = {}) {
@@ -201,12 +210,22 @@ async function analysisVueFile({ isNeedAnalysis, fileInfo, fileName, ext, urlInS
         );
     }
 
-    if (isNeedAnalysis) {
-        const content = await fs.promises.readFile(fileInfo.fsPath, "utf-8");
-        /* TODO:解析，定义和注释 */
-        /* ************************* */
-        /* TODO:解析，定义和注释 */
-        store.vueFiles.save(newPayload({ fileContentString: content }));
+
+    /* 比如 Vue._api 的api */
+    let identity;
+
+    for (const [id, filePath] of Object.entries(store.configs.vueVaribles)) {
+        if (fileInfo.path.includes(filePath)) {
+            identity = id;
+            break;
+        }
+    }
+
+
+    if (identity) {
+        const varibles = await analysisVueVaribles({ fsPath: fileInfo.fsPath, identity, documentUriPath: fileInfo.path });
+        store.vueFiles.save(newPayload());
+        store.vueVaribles.save(varibles);
     } else {
         store.vueFiles.save(newPayload());
     }
