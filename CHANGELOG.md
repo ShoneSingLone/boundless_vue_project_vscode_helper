@@ -2,7 +2,9 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
+## 2024年1月4日
+
+- 新增跳转typescript文件
 
 ## 2023年11月14日
 

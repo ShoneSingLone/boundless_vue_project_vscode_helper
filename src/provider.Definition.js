@@ -116,7 +116,8 @@ exports.register = function (context) {
     const subscription = vc.languages.registerDefinitionProvider(
         [
             { scheme: "file", language: "vue" },
-            { scheme: "file", language: "javascript" }
+            { scheme: "file", language: "javascript" },
+            { language: 'typescript', scheme: 'file' }
         ],
         // @ts-ignore
         new ProviderDefinition()

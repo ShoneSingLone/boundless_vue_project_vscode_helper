@@ -1,4 +1,5 @@
-const fs = require("fs").promises;
+const fsSync = require("fs");
+const fs = fsSync.promises;
 const path = require("path");
 const { URI } = require("vscode-uri");
 const { store } = require("./store");
@@ -9,6 +10,14 @@ const ALIAS_PATH_CACHE = {};
 exports.CLIENT_EMIT_TYPE_DELETE = "shone.sing.lone.client.emit.type.delete";
 exports.CLIENT_EMIT_TYPE_SAVE = "shone.sing.lone.client.emit.type.save";
 exports.CLIENT_EMIT_TYPE_COMMON_VARIBLES = "shone.sing.lone.client.emit.type.common.varibles.refresh";
+
+
+function cachePath(url, _path) {
+	ALIAS_PATH_CACHE[url] = path.normalize(
+		_path.split("/").filter(Boolean).join("/")
+	);
+	return ALIAS_PATH_CACHE[url];
+}
 
 
 exports.getDocInfo = function ({ documents, textDocument, position }) {
@@ -47,10 +56,14 @@ exports.isObject = function isObject(obj) {
  * @returns
  */
 exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ documentUriPath, urlInSourceCode, isGetDir }) {
+	const _urlInSourceCode = String(urlInSourceCode);
 	const ext = path.extname(urlInSourceCode);
+	let mayTryTypescript = false;
 	if (!ext && !isGetDir) {
 		/* 尝试获取文件 */
-		urlInSourceCode += ".js";
+		urlInSourceCode = _urlInSourceCode + ".js";
+		/* 如果js找不到，尝试找.ts */
+		mayTryTypescript = true;
 	}
 
 	if (ALIAS_PATH_CACHE[urlInSourceCode]) {
@@ -60,42 +73,59 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 
 	let isInBusiness = /\/business_(.*)\//.test(documentUriPath);
 	let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
-	let normalizedAbsolutePath = (() => {
-		if (isInBusiness) {
-			[SRC_ROOT_PATH, FILE_PATH] = documentUriPath.split("business_");
-			[APP_NAME] = FILE_PATH.split("/");
-		}
 
-		if (/^@\/(.*)/.test(urlInSourceCode)) {
-			/* 讲道理，_s的文件不会访问business_下的文件 */
-			return String(urlInSourceCode).replace(
-				/^@/,
-				`${SRC_ROOT_PATH}/business_${APP_NAME}`
-			);
-		}
+	function getNormalizedAbsolutePath(urlInSourceCode) {
+		const _path = (function () {
+			if (isInBusiness) {
+				[SRC_ROOT_PATH, FILE_PATH] = documentUriPath.split("business_");
+				[APP_NAME] = FILE_PATH.split("/");
+			}
 
-		let isInAliasMap = false;
-		for (const [aliasRegExp, aliasPath] of Object.entries(store.configs.alias)) {
-			if (new RegExp(aliasRegExp).test(urlInSourceCode)) {
-				SRC_ROOT_PATH = urlInSourceCode.replace(new RegExp(aliasRegExp), aliasPath);
-				isInAliasMap = true;
-				break;
+			if (/^@\/(.*)/.test(urlInSourceCode)) {
+				/* 讲道理，_s的文件不会访问business_下的文件 */
+				return String(urlInSourceCode).replace(
+					/^@/,
+					`${SRC_ROOT_PATH}/business_${APP_NAME}`
+				);
+			}
+
+			let isInAliasMap = false;
+			for (const [aliasRegExp, aliasPath] of Object.entries(store.configs.alias)) {
+				if (new RegExp(aliasRegExp).test(urlInSourceCode)) {
+					SRC_ROOT_PATH = urlInSourceCode.replace(new RegExp(aliasRegExp), aliasPath);
+					isInAliasMap = true;
+					break;
+				}
+			}
+
+			if (isInAliasMap) {
+				return `${vc.workspace.rootPath}${SRC_ROOT_PATH}`;
+			}
+
+		})();
+
+		if (_path) {
+			const isExist = fsSync.existsSync(_path);
+			if (isExist) {
+				return _path;
 			}
 		}
 
-		if (isInAliasMap) {
-			return `${vc.workspace.rootPath}${SRC_ROOT_PATH}`;
-		}
-	})();
-
-
-	if (normalizedAbsolutePath) {
-		return path.normalize(
-			normalizedAbsolutePath.split("/").filter(Boolean).join("/")
-		);
-	} else {
-		return null;
+		return false;
 	}
+
+
+	let normalizedAbsolutePath = getNormalizedAbsolutePath(urlInSourceCode);
+	if (normalizedAbsolutePath) {
+		return cachePath(urlInSourceCode, normalizedAbsolutePath);
+	} else if (mayTryTypescript) {
+		/* 尝试寻找ts */
+		normalizedAbsolutePath = getNormalizedAbsolutePath(_urlInSourceCode + ".ts");
+		if (normalizedAbsolutePath) {
+			return cachePath(urlInSourceCode, normalizedAbsolutePath);
+		}
+	}
+	return null;
 };
 
 exports.asyncAllDirAndFile = async function asyncAllDirAndFile(

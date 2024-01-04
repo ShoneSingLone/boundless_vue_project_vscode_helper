@@ -101,6 +101,7 @@ function handleGlobalVariblesCompletion(range) {
 exports.register = (context) => {
     const subscription = vc.languages.registerCompletionItemProvider(
         [
+            { language: 'typescript', scheme: 'file' },
             { scheme: "file", language: "javascript" },
             { scheme: "file", language: "vue" }
         ],
