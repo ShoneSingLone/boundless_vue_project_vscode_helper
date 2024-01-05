@@ -18,6 +18,10 @@
 	"contributes": {
 		"snippets": [
 			{
+				"language": "typescript",
+				"path": "./snippets/xUI.json"
+			},
+			{
 				"language": "javascript",
 				"path": "./snippets/xUI.json"
 			},
