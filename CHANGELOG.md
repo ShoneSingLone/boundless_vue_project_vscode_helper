@@ -2,10 +2,9 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## 2023年11月15日
+## 2024年1月4日
 
-- Vue._xxxx函数的跳转
-- 修复了一些bug
+- 新增跳转typescript文件
 
 ## 2023年11月14日
 

@@ -126,6 +126,7 @@ function handleVueVariblesCompletion({ range, property }) {
 exports.register = (context) => {
     const subscription = vc.languages.registerCompletionItemProvider(
         [
+            { language: 'typescript', scheme: 'file' },
             { scheme: "file", language: "javascript" },
             { scheme: "file", language: "vue" }
         ],
