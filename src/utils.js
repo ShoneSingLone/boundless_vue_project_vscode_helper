@@ -84,7 +84,7 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 				/* 讲道理，_s的文件不会访问business_下的文件 */
 				return String(urlInSourceCode).replace(
 					/^@/,
-					`${SRC_ROOT_PATH}/business_${APP_NAME}`
+					`${SRC_ROOT_PATH}business_${APP_NAME}`
 				);
 			}
 
@@ -104,10 +104,7 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 		})();
 
 		if (_path) {
-			const isExist = fsSync.existsSync(_path);
-			if (isExist) {
-				return _path;
-			}
+			return _path;
 		}
 
 		return false;

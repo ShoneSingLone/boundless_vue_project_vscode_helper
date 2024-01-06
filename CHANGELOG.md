@@ -2,6 +2,10 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 2024年1月6日
+
+- 修复跳转定义
+
 ## 2024年1月4日
 
 - 新增跳转typescript文件
