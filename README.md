@@ -48,6 +48,7 @@ module.exports = {
 
 - lodash
 - xsfc SFC 模板（基础款）
+- xsfcdialog SFC 模板（dialog带有$closeWindow等方法）
 - ximv \_.$importVue
 
 VSCode CodeActionProvider 是一个用于提供代码修复功能的插件。它可以帮助用户自动修复代码中的错误、提供代码重构建议以及其他编辑器建议。
