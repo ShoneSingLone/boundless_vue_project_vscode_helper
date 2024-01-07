@@ -2,6 +2,10 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 2024年1月8日
+
+- 添加自动生成 common.js 的typescript declare 文件
+
 ## 2024年1月7日
 
 - xsfcdialog
