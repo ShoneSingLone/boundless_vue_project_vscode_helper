@@ -10,21 +10,21 @@
 
 ```js
 module.exports = {
-    "alias": {
-        "^/common/": "/static_vue2/common/"
-    },
-    "analysis": {
-        findFilesInclude: "static_vue2/**/*.vue",
-        businessPrefix: "static_vue2/business_",
-        commonPrefix: "static_vue2/common/",
-    },
-    "globalVaribles": {
-        _: 'static_vue2/common/libs/common.js',
-    },
-    vueVaribles: {
-        _api: "static_vue2/business_xxxAppNamexxx/utils/api.vue",
-        _opts: "static_vue2/business_xxxAppNamexxx/utils/opts.vue",
-    }
+	alias: {
+		"^/common/": "/static_vue2/common/"
+	},
+	analysis: {
+		findFilesInclude: "static_vue2/**/*.vue",
+		businessPrefix: "static_vue2/business_",
+		commonPrefix: "static_vue2/common/"
+	},
+	globalVaribles: {
+		_: "static_vue2/common/libs/common.js"
+	},
+	vueVaribles: {
+		_api: "static_vue2/business_xxxAppNamexxx/utils/api.vue",
+		_opts: "static_vue2/business_xxxAppNamexxx/utils/opts.vue"
+	}
 };
 ```
 
@@ -77,7 +77,6 @@ vsce publish patch, minor, or major
 
 词法高亮 词法分析
 
-
 ## hover函数注释信息
 
 ## 参考
@@ -88,6 +87,5 @@ vsce publish patch, minor, or major
 - [vue-helper](https://github.com/jiaolong1021/vue-helper/tree/master)
 - [esprima-ast-utils](https://www.npmjs.com/package/esprima-ast-utils)
 - [vtable](https://visactor.io/vtable/demo/edit/add-delete-records)
-
 
 > Big thanks to everyone who has used this over the years. If you have found this helped at all, feel free to [buy me a coffee](https://www.buymeacoffee.com/shonesinglone)!

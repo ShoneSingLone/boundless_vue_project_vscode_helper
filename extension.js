@@ -5,12 +5,14 @@ const { runScan } = require("./src/runScan.js");
 const { store } = require("./src/store.js");
 
 /**
- * @param {any} context 
+ * @param {any} context
  */
 function activate(context) {
 	try {
 		/* 只有root有configs.boundlessHelper.js才会激活插件 */
-		store.configs = require(path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js"));
+		store.configs = require(
+			path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js")
+		);
 		registerProvider({ context });
 		/* （全局变量scan） */
 		runScan({ context });
@@ -20,5 +22,5 @@ function activate(context) {
 }
 module.exports = {
 	activate,
-	deactivate() { }
+	deactivate() {}
 };

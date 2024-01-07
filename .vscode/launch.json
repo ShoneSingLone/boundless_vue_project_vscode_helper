@@ -5,13 +5,9 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
-			],
+			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
 			"name": "Launch Extension",
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js"
-			],
+			"outFiles": ["${workspaceFolder}/out/**/*.js"],
 			"request": "launch",
 			"type": "extensionHost"
 		},
@@ -21,9 +17,7 @@
 			"request": "attach",
 			"port": 6010,
 			"restart": true,
-			"outFiles": [
-				"${workspaceRoot}/src/server/server.js"
-			]
-		},
+			"outFiles": ["${workspaceRoot}/src/server/server.js"]
+		}
 	]
 }

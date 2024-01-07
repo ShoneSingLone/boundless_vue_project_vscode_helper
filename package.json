@@ -29,6 +29,16 @@
 				"language": "vue",
 				"path": "./snippets/xUI.json"
 			}
+		],
+		"commands": [
+			{
+				"command": "shone.sing.lone.QuoteIt.GenDecalre",
+				"title": "boundlessHelper gen d.ts"
+			},
+			{
+				"command": "shone.sing.lone.scanFile",
+				"title": "boundlessHelper scanFile"
+			}
 		]
 	},
 	"activationEvents": [
@@ -42,6 +52,8 @@
 		"publish:patch": "vsce publish patch"
 	},
 	"dependencies": {
+		"@babel/parser": "^7.23.6",
+		"@babel/traverse": "^7.23.7",
 		"esprima-ast-utils": "^0.0.7",
 		"esprima-next": "^5.8.4",
 		"lodash": "^4.17.21",

@@ -8,8 +8,8 @@ const ALIAS_PATH_CACHE = {};
 
 exports.CLIENT_EMIT_TYPE_DELETE = "shone.sing.lone.client.emit.type.delete";
 exports.CLIENT_EMIT_TYPE_SAVE = "shone.sing.lone.client.emit.type.save";
-exports.CLIENT_EMIT_TYPE_COMMON_VARIBLES = "shone.sing.lone.client.emit.type.common.varibles.refresh";
-
+exports.CLIENT_EMIT_TYPE_COMMON_VARIBLES =
+	"shone.sing.lone.client.emit.type.common.varibles.refresh";
 
 function cachePath(url, _path) {
 	ALIAS_PATH_CACHE[url] = path.normalize(
@@ -17,7 +17,6 @@ function cachePath(url, _path) {
 	);
 	return ALIAS_PATH_CACHE[url];
 }
-
 
 exports.getDocInfo = function ({ documents, textDocument, position }) {
 	let document = documents.get(textDocument.uri);
@@ -54,7 +53,11 @@ exports.isObject = function isObject(obj) {
  * @param {*} param0
  * @returns
  */
-exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ documentUriPath, urlInSourceCode, isGetDir }) {
+exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({
+	documentUriPath,
+	urlInSourceCode,
+	isGetDir
+}) {
 	const _urlInSourceCode = String(urlInSourceCode);
 	const ext = path.extname(urlInSourceCode);
 	let mayTryTypescript = false;
@@ -68,7 +71,6 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 	if (ALIAS_PATH_CACHE[urlInSourceCode]) {
 		return ALIAS_PATH_CACHE[urlInSourceCode];
 	}
-
 
 	let isInBusiness = /\/business_(.*)\//.test(documentUriPath);
 	let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
@@ -89,9 +91,14 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 			}
 
 			let isInAliasMap = false;
-			for (const [aliasRegExp, aliasPath] of Object.entries(store.configs.alias)) {
+			for (const [aliasRegExp, aliasPath] of Object.entries(
+				store.configs.alias
+			)) {
 				if (new RegExp(aliasRegExp).test(urlInSourceCode)) {
-					SRC_ROOT_PATH = urlInSourceCode.replace(new RegExp(aliasRegExp), aliasPath);
+					SRC_ROOT_PATH = urlInSourceCode.replace(
+						new RegExp(aliasRegExp),
+						aliasPath
+					);
 					isInAliasMap = true;
 					break;
 				}
@@ -110,13 +117,14 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 		return false;
 	}
 
-
 	let normalizedAbsolutePath = getNormalizedAbsolutePath(urlInSourceCode);
 	if (normalizedAbsolutePath) {
 		return cachePath(urlInSourceCode, normalizedAbsolutePath);
 	} else if (mayTryTypescript) {
 		/* 尝试寻找ts */
-		normalizedAbsolutePath = getNormalizedAbsolutePath(_urlInSourceCode + ".ts");
+		normalizedAbsolutePath = getNormalizedAbsolutePath(
+			_urlInSourceCode + ".ts"
+		);
 		if (normalizedAbsolutePath) {
 			return cachePath(urlInSourceCode, normalizedAbsolutePath);
 		}
@@ -149,10 +157,9 @@ exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
 
 exports.last = arr => (arr.length > 0 ? arr[arr.length - 1] : "");
 
-
 /**
- * 
- * @param {*} normalizedAbsolutePath 
+ *
+ * @param {*} normalizedAbsolutePath
  * @returns Location
  */
 function newFileLocation(normalizedAbsolutePath) {
@@ -161,9 +168,8 @@ function newFileLocation(normalizedAbsolutePath) {
 		vc.Uri.file(normalizedAbsolutePath),
 		new vc.Position(0, 0)
 	);
-};
+}
 exports.newFileLocation = newFileLocation;
-
 
 exports.VueLoader = function (sourceCodeString) {
 	function getSource(source, pickType) {
@@ -175,7 +181,10 @@ exports.VueLoader = function (sourceCodeString) {
 				return [targetSource, {}];
 			} else {
 				openingTag = openingTag[0];
-				targetSource = source.slice(source.indexOf(openingTag) + openingTag.length, source.lastIndexOf("</" + pickType + ">"));
+				targetSource = source.slice(
+					source.indexOf(openingTag) + openingTag.length,
+					source.lastIndexOf("</" + pickType + ">")
+				);
 			}
 			/* TODO: jsx解析*/
 			if (["template", "setup-render"].includes(pickType)) {
@@ -191,7 +200,10 @@ exports.VueLoader = function (sourceCodeString) {
 		const [scritpSourceCode] = getSource(sourceCodeString, "script");
 		const [templateSourceCode] = getSource(sourceCodeString, "template");
 		const [styleSourceCode] = getSource(sourceCodeString, "style");
-		const [setupRenderSourceCode, { scope }] = getSource(sourceCodeString, "setup-render");
+		const [setupRenderSourceCode, { scope }] = getSource(
+			sourceCodeString,
+			"setup-render"
+		);
 		return {
 			scritpSourceCode,
 			templateSourceCode,
