@@ -32,10 +32,6 @@
 		],
 		"commands": [
 			{
-				"command": "shone.sing.lone.QuoteIt.GenDecalre",
-				"title": "boundlessHelper gen d.ts"
-			},
-			{
 				"command": "shone.sing.lone.scanFile",
 				"title": "boundlessHelper scanFile"
 			}
