@@ -12,19 +12,24 @@ const { map, reduce } = require("lodash");
 class ProviderCompletion {
 	async provideCompletionItems(document, position) {
 		const REG_UNDONE_PATH_REG = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
+		
+		/* 由 vscode 自带的 typescript d.ts 完成 */
 		const REG_IS_GLOBAL_VARIBLES_REG = /_\.(.*)/;
+		/* 由 vscode 自带的 typescript d.ts 完成 */
 		const REG_VUE_VARIABLES_REG = /(Vue\._(.*)(\.(.*))?)/;
 
 		const isPathCompletion = () => {
 			return document.getWordRangeAtPosition(position, REG_UNDONE_PATH_REG);
 		};
 		const isGlobalVaribles = () => {
+			return false;
 			return document.getWordRangeAtPosition(
 				position,
 				REG_IS_GLOBAL_VARIBLES_REG
 			);
 		};
 		const isVueVaribles = () => {
+			return false;
 			return document.getWordRangeAtPosition(position, REG_VUE_VARIABLES_REG);
 		};
 		const { path: documentUriPath } = document.uri;
@@ -36,14 +41,14 @@ class ProviderCompletion {
 				.match(REG_UNDONE_PATH_REG)[1];
 			return handlePathCompletion({ urlInSourceCode, documentUriPath });
 		}
-		if ((range = isGlobalVaribles())) {
+		/* if ((range = isGlobalVaribles())) {
 			console.log(document.getText(range));
 			return handleGlobalVariblesCompletion(range);
 		}
 		if ((range = isVueVaribles())) {
 			const property = document.getText(range).match(REG_VUE_VARIABLES_REG)[1];
 			return handleVueVariblesCompletion({ range, property });
-		}
+		} */
 		return null;
 	}
 }

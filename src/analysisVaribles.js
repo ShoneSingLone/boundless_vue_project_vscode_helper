@@ -87,6 +87,14 @@ exports.analysisCommonVaribles = async function ({ fsPath }) {
 		const ast = parser.parse(sourceCode, {
 			sourceType: "script" // 指定代码类型，可以是 'script' 或 'module'
 		});
+
+		await fs.promises.writeFile(
+			path.resolve(
+				vscode.workspace.rootPath,
+				"test/ast.json"
+			),
+			JSON.stringify(ast, null, 4)
+		);
 		const TIPS_ARRAY = [];
 		const targetTipsDeclare = [];
 
@@ -100,32 +108,44 @@ exports.analysisCommonVaribles = async function ({ fsPath }) {
 					if (!functionName) {
 						return;
 					} else {
-						/* 说明是_.开头的 */
-						TIPS_ARRAY.push(NodePath);
+						console.log("🚀 函数名称:", functionName);
+						/* 说明是_.开头的,立马收集 */
+						TIPS_ARRAY.push([functionName, NodePath]);
 					}
 					if (
 						["FunctionExpression", "ArrowFunctionExpression"].includes(
 							right.type
 						)
 					) {
-						console.log("🚀 函数名称:", functionName);
-						const parameters = right.params.map(param => param.name);
-						console.log("参数列表:", parameters);
-						const innerComments = right.body.body?.[0]?.leadingComments;
-						if (innerComments) {
-							const [desc, type] = innerComments.map(comment => comment.value);
-							if (String(desc).includes("@boundlessDesc")) {
-								targetTipsDeclare.push(`
-                                /** @description ${desc.replace(
-																	"@boundlessDesc",
-																	""
-																)} */
-                                ${functionName.substring(2)}: ${type.replace(
-																	"@boundlessType",
-																	""
-																)}`);
+
+						const comments = NodePath.parent?.leadingComments;
+						if (comments) {
+							const [desc, type] = comments.map(comment => comment.value);
+							if (String(type).includes("@typescriptDeclare")) {
+								targetTipsDeclare.push(`/*${desc}*/\r\n${functionName.substring(2)}: ${type.replace(
+									"@typescriptDeclare",
+									""
+								)}`);
 							}
 						}
+
+						// const parameters = right.params.map(param => param.name);
+						// console.log("参数列表:", parameters);
+						// const innerComments = right.body.body?.[0]?.leadingComments;
+						// if (innerComments) {
+						// 	const [desc, type] = innerComments.map(comment => comment.value);
+						// 	if (String(desc).includes("@boundlessDesc")) {
+						// 		targetTipsDeclare.push(`
+						//         /** @description ${desc.replace(
+						// 			"@boundlessDesc",
+						// 			""
+						// 		)} */
+						//         ${functionName.substring(2)}: ${type.replace(
+						// 			"@boundlessType",
+						// 			""
+						// 		)}`);
+						// 	}
+						// }
 					} else {
 						console.log("right.type", right.type);
 					}
@@ -147,10 +167,7 @@ exports.analysisCommonVaribles = async function ({ fsPath }) {
         }
 `
 		);
-		return {
-			TIPS_ARRAY,
-			sourceCode
-		};
+		return { TIPS_ARRAY };
 	} catch (error) {
 		console.error(error);
 	}

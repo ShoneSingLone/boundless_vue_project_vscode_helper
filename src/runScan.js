@@ -54,33 +54,8 @@ class Scanner {
 	 */
 	async updateGlobalVaribles({ file }) {
 		try {
-			const { TIPS_ARRAY, sourceCode } = await analysisCommonVaribles(file);
-			store.utilsVar.records = map(TIPS_ARRAY, ({ node }) => {
-				const [kind, detail] = (function () {
-					if (
-						[
-							"CallExpression",
-							"FunctionExpression",
-							"ArrowFunctionExpression"
-						].includes(node.right.type)
-					) {
-						const detail = sourceCode.substring(node.start, node.end);
-						return [CompletionItemKind.Method, detail];
-					}
-					if (["Identifier"].includes(node.right?.type)) {
-						return [CompletionItemKind.Variable];
-					}
-					return [CompletionItemKind.Property];
-				})();
-
-				return {
-					fsPath: file.fsPath,
-					documentation: detail || "",
-					node,
-					label: node.expression.left.property.name,
-					kind
-				};
-			});
+			const { TIPS_ARRAY } = await analysisCommonVaribles(file);
+			store.utilsVar.records = TIPS_ARRAY;
 		} catch (error) {
 			console.error(error);
 		}
@@ -95,6 +70,9 @@ class Scanner {
 		store.vueFiles.delete(request);
 	}
 	async processWorkspaceFiles(files) {
+		vscode.window.showInformationMessage(
+			`"boundless-vue-helper" Building cache...`
+		);
 		let index = 0,
 			file,
 			length = files.length;
@@ -150,8 +128,12 @@ exports.runScan = function ({ context }) {
 		context.subscriptions.push(commandScanner);
 	})();
 	const SCANNER = new Scanner();
-
+	function tipsAlert(file) {
+		const tips = `${file._fsPath} has been changed run ScanFile by manual`;
+		console.log(tips);
+	}
 	function scan() {
+		/* 2024年1月8日 改为手工扫描 */
 		(function watchVueSFCFiles() {
 			let watcher = vscode.workspace.createFileSystemWatcher(
 				new vscode.RelativePattern(
@@ -160,23 +142,17 @@ exports.runScan = function ({ context }) {
 				)
 			);
 			watcher.onDidChange(file => {
-				vscode.commands.executeCommand("shone.sing.lone.scanFile", {
-					file,
-					edit: true
-				});
+				tipsAlert(file);
+				/* vscode.commands.executeCommand("shone.sing.lone.scanFile", { file, edit: true }); */
 			});
 
 			watcher.onDidCreate(file => {
-				vscode.commands.executeCommand("shone.sing.lone.scanFile", {
-					file,
-					edit: true
-				});
+				tipsAlert(file);
+				/* vscode.commands.executeCommand("shone.sing.lone.scanFile", { file, edit: true }); */
 			});
 			watcher.onDidDelete(file => {
-				vscode.commands.executeCommand("shone.sing.lone.scanFile", {
-					file,
-					delete: true
-				});
+				tipsAlert(file);
+				/* vscode.commands.executeCommand("shone.sing.lone.scanFile", { file, delete: true }); */
 			});
 		})();
 
@@ -189,18 +165,11 @@ exports.runScan = function ({ context }) {
 					)
 				);
 				watcheLodash.onDidChange(file => {
-					vscode.commands.executeCommand("shone.sing.lone.scanFile", {
-						file,
-						globalVaribles: true
-					});
+					tipsAlert(file);
+					/* vscode.commands.executeCommand("shone.sing.lone.scanFile", { file, globalVaribles: true }); */
 				});
 			})();
 		})();
-
-		vscode.window.showInformationMessage(
-			`"boundless-vue-helper" Building cache...`
-		);
-		vscode.commands.executeCommand("shone.sing.lone.scanFile");
 	}
 	function scanFile(request = {}) {
 		if (request.edit) {

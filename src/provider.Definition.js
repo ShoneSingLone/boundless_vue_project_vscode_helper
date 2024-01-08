@@ -1,11 +1,12 @@
 const vc = require("vscode");
+const path = require("path");
 const { store } = require("./store");
 const { normalizedAbsolutePathForFS, newFileLocation } = require("./utils");
 const { find } = require("lodash");
 
 const REG_VUE_PATH = /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/;
 const REG_COMPONENT_TAG = /\<\/?([\w-]+).*?/;
-const REG_GLOABLE_VAR = /_\.\$(\w+)\(/;
+const REG_GLOABLE_VAR = /\$(\w+):/;
 const REG_VUE_VAR = /(Vue(\.\w+)+)/;
 /* js路径权重最低（正则特殊性最低，匹配上的概率更大），所以最后尝试 */
 const REG_JS_PATH = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
@@ -78,10 +79,15 @@ class ProviderDefinition {
 				documentUriPath
 			});
 		} else if (currRegExp === REG_GLOABLE_VAR) {
-			return handleJumpToCommonUtils({
-				label: selectedString,
-				documentUriPath
-			});
+			const isTsDeclare = /d.ts$/.test(documentUriPath);
+			if (isTsDeclare) {
+				return handleJumpToCommonUtils({
+					label: selectedString,
+					documentUriPath
+				});
+			} else {
+				return;
+			}
 		} else if (currRegExp === REG_VUE_VAR) {
 			return handleJumpToVueVaribles({ label: selectedString });
 		}
@@ -99,25 +105,29 @@ class ProviderDefinition {
 }
 
 function handleJumpToCommonUtils({ label, documentUriPath }) {
-	const record = find(store.utilsVar.records, { label });
-	if (record) {
-		const normalizedAbsolutePath = normalizedAbsolutePathForFS({
-			documentUriPath,
-			urlInSourceCode: "/common/libs/common.js"
+	try {
+		const record = find(store.utilsVar.records, ([name]) => {
+			return name === `_.${label}`;
 		});
-		const {
-			node: {
+		if (record) {
+			const [, { node: {
 				loc: {
 					start: { line, column }
 				}
-			}
-		} = record;
-		return [
-			new vc.Location(
-				vc.Uri.file(normalizedAbsolutePath),
-				new vc.Position(line - 1, column)
-			)
-		];
+			} }] = record;
+			const normalizedAbsolutePath = normalizedAbsolutePathForFS({
+				documentUriPath,
+				urlInSourceCode: "/common/libs/common.js"
+			});
+			return [
+				new vc.Location(
+					vc.Uri.file(normalizedAbsolutePath),
+					new vc.Position(line - 1, column)
+				)
+			];
+		}
+	} catch (error) {
+
 	}
 	return null;
 }

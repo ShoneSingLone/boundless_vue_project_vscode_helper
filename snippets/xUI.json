@@ -1,7 +1,7 @@
 {
 	"boundless generate comment for scan": {
 		"prefix": "xgcomment",
-		"body": ["/* @boundlessDesc $1 */\r\n/* @boundlessType $2 */"],
+		"body": ["/* @typescriptDeclare $2 */"],
 		"description": "boundless generate comment for scan"
 	},
 	"boundless Vue SFC Dialog": {
