@@ -166,10 +166,11 @@ exports.runScan = function ({ context }) {
 				);
 				watcheLodash.onDidChange(file => {
 					tipsAlert(file);
-					/* vscode.commands.executeCommand("shone.sing.lone.scanFile", { file, globalVaribles: true }); */
 				});
 			})();
 		})();
+
+		vscode.commands.executeCommand("shone.sing.lone.scanFile");
 	}
 	function scanFile(request = {}) {
 		if (request.edit) {
