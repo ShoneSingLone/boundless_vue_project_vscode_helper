@@ -27,9 +27,11 @@ module.exports = {
 	}
 };
 ```
+### 内置别名@ 
 
-- `@`是默认`business_**`文件夹下的资源（个人项目专用）
-  - 同名的`@/entry.vue` 在 `business_app/` 和 `business_doc/下`，跳转各自对应的文件
+`@`是默认`business_**`文件夹下的资源（对应应用）
+  - 同名的文件不会冲突
+	- 同样是`@/entry.vue` 会跳转对应应用下的文件
 
 ## alias 跳转规则
 
