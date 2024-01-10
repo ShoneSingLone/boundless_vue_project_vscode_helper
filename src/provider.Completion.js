@@ -1,10 +1,9 @@
-const vc = require("vscode");
+const vscodec = require("vscode");
 const path = require("path");
-const fs = require("fs");
-const { CompletionItem, CompletionItemKind, SnippetString } = require("vscode");
+const { CompletionItem, CompletionItemKind, /* SnippetString */ } = require("vscode");
 const { normalizedAbsolutePathForFS, asyncAllDirAndFile } = require("./utils");
 const { store } = require("./store");
-const { map, reduce } = require("lodash");
+const { map } = require("lodash");
 
 /**
  * @type import("vscode").CompletionItemProvider
@@ -12,26 +11,25 @@ const { map, reduce } = require("lodash");
 class ProviderCompletion {
 	async provideCompletionItems(document, position) {
 		const REG_UNDONE_PATH_REG = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
-		
+
 		/* 由 vscode 自带的 typescript d.ts 完成 */
-		const REG_IS_GLOBAL_VARIBLES_REG = /_\.(.*)/;
+		/* const REG_IS_GLOBAL_VARIBLES_REG = /_\.(.*)/; */
 		/* 由 vscode 自带的 typescript d.ts 完成 */
-		const REG_VUE_VARIABLES_REG = /(Vue\._(.*)(\.(.*))?)/;
+		/* const REG_VUE_VARIABLES_REG = /(Vue\._(.*)(\.(.*))?)/; */
 
 		const isPathCompletion = () => {
 			return document.getWordRangeAtPosition(position, REG_UNDONE_PATH_REG);
 		};
-		const isGlobalVaribles = () => {
-			return false;
+
+		/* const isGlobalVaribles = () => {
 			return document.getWordRangeAtPosition(
 				position,
 				REG_IS_GLOBAL_VARIBLES_REG
 			);
-		};
-		const isVueVaribles = () => {
-			return false;
+		}; */
+		/* const isVueVaribles = () => {
 			return document.getWordRangeAtPosition(position, REG_VUE_VARIABLES_REG);
-		};
+		}; */
 		const { path: documentUriPath } = document.uri;
 
 		let range;
@@ -84,52 +82,11 @@ async function handlePathCompletion({ urlInSourceCode, documentUriPath }) {
 		return null;
 	}
 }
-function handleGlobalVariblesCompletion(range) {
-	try {
-		return map(store.utilsVar.records, record => {
-			const item = new CompletionItem(record.label, record.kind);
-			item.documentation = record.documentation;
-			/* https://stackoverflow.com/questions/72900239/how-to-delete-trigger-character-when-using-vscode-api-completion-feature */
-			item.additionalTextEdits = [new vc.TextEdit(range, "_.")];
-			return item;
-		});
-	} catch (error) {
-		console.error(error);
-		return null;
-	}
-}
-function handleVueVariblesCompletion({ range, property }) {
-	try {
-		return reduce(
-			store.vueVaribles.collection,
-			(target, node, label) => {
-				if (label.includes(property)) {
-					let kind = CompletionItemKind.Property;
-					// @ts-ignore
-					if (node.type === "ExpressionStatement") {
-						kind = CompletionItemKind.Method;
-					}
-					const item = new CompletionItem(label, kind);
-					// item.documentation = record.documentation;
-					/* https://stackoverflow.com/questions/72900239/how-to-delete-trigger-character-when-using-vscode-api-completion-feature */
-					item.additionalTextEdits = [new vc.TextEdit(range, "")];
-					target.push(item);
-				}
-
-				return target;
-			},
-			[]
-		);
-	} catch (error) {
-		console.error(error);
-		return null;
-	}
-}
 
 exports.register = context => {
-	const subscription = vc.languages.registerCompletionItemProvider(
+	const subscription = vscodec.languages.registerCompletionItemProvider(
 		[
-			{ language: "typescript", scheme: "file" },
+			{ scheme: "file", language: "typescript" },
 			{ scheme: "file", language: "javascript" },
 			{ scheme: "file", language: "vue" }
 		],

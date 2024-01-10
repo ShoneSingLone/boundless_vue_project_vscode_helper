@@ -1,7 +1,6 @@
-const vc = require("vscode");
+const vscode = require("vscode");
 const path = require("path");
 const { registerProvider } = require("./src/registerProvider.js");
-const { runScan } = require("./src/runScan.js");
 const { store } = require("./src/store.js");
 
 /**
@@ -11,16 +10,26 @@ function activate(context) {
 	try {
 		/* 只有root有configs.boundlessHelper.js才会激活插件 */
 		store.configs = require(
-			path.resolve(vc.workspace.rootPath, "configs.boundlessHelper.js")
+			path.resolve(vscode.workspace.rootPath, "configs.boundless.vue.project.js")
 		);
 		registerProvider({ context });
-		/* （全局变量scan） */
-		runScan({ context });
+
+		/* 可以通过ctrl+shift+p打开命令面板,manual 调用 scanner*/
+		let commandScanner = vscode.commands.registerCommand(
+			"shone.sing.lone.readAst",
+			() => {
+				store.configs = require(
+					path.resolve(vscode.workspace.rootPath, "configs.boundless.vue.project.js")
+				);
+			}
+		);
+		context.subscriptions.push(commandScanner);
+		vscode.commands.executeCommand("shone.sing.lone.readAst");
 	} catch (error) {
 		console.error(error);
 	}
 }
 module.exports = {
 	activate,
-	deactivate() {}
+	deactivate() { }
 };

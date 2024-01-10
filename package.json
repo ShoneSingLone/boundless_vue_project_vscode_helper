@@ -32,8 +32,8 @@
 		],
 		"commands": [
 			{
-				"command": "shone.sing.lone.scanFile",
-				"title": "boundlessHelper scanFile"
+				"command": "shone.sing.lone.readAst",
+				"title": "sync info boundless_vue_project_vscode_helper"
 			}
 		]
 	},
@@ -48,17 +48,11 @@
 		"publish:patch": "vsce publish patch"
 	},
 	"dependencies": {
-		"@babel/parser": "^7.23.6",
-		"@babel/traverse": "^7.23.7",
-		"esprima-ast-utils": "^0.0.7",
-		"esprima-next": "^5.8.4",
 		"lodash": "^4.17.21",
 		"vscode-uri": "^3.0.8"
 	},
 	"devDependencies": {
 		"@types/node": "18.x",
-		"@types/vscode": "^1.83.0",
-		"eslint": "^8.50.0",
-		"glob": "^10.3.3"
+		"@types/vscode": "^1.83.0"
 	}
 }

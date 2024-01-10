@@ -1,4 +1,4 @@
-const vc = require("vscode");
+const vscode = require("vscode");
 const path = require("path");
 const { store } = require("./store");
 const { normalizedAbsolutePathForFS, newFileLocation } = require("./utils");
@@ -6,7 +6,7 @@ const { find } = require("lodash");
 
 const REG_VUE_PATH = /"([^"]*)\.vue"|'([^']*)\.vue'|`([^`]*)\.vue`/;
 const REG_COMPONENT_TAG = /\<\/?([\w-]+).*?/;
-const REG_GLOABLE_VAR = /\$(\w+):/;
+const REG_GLOBAL_VAR = /\$(\w+):/;
 const REG_VUE_VAR = /(Vue(\.\w+)+)/;
 /* js路径权重最低（正则特殊性最低，匹配上的概率更大），所以最后尝试 */
 const REG_JS_PATH = /"([^"]*)"|'([^']*)'|`([^`]*)`/;
@@ -38,7 +38,8 @@ class ProviderDefinition {
 				return;
 			}
 			/* 尝试全局变量 _.$xxxxx( */
-			currRegExp = REG_GLOABLE_VAR;
+
+			currRegExp = REG_GLOBAL_VAR;
 			range = document.getWordRangeAtPosition(position, currRegExp);
 			isGloableVar_path = !!range;
 			if (isGloableVar_path) {
@@ -74,17 +75,11 @@ class ProviderDefinition {
 		}
 
 		if (currRegExp === REG_COMPONENT_TAG) {
-			return handleJumpToComponentTag({
-				tagName: selectedString,
-				documentUriPath
-			});
-		} else if (currRegExp === REG_GLOABLE_VAR) {
+			return handleJumpToComponentTag({ tagName: selectedString });
+		} else if (currRegExp === REG_GLOBAL_VAR) {
 			const isTsDeclare = /d.ts$/.test(documentUriPath);
 			if (isTsDeclare) {
-				return handleJumpToCommonUtils({
-					label: selectedString,
-					documentUriPath
-				});
+				return handleJumpToCommonUtils({ label: selectedString, documentUriPath });
 			} else {
 				return;
 			}
@@ -106,23 +101,24 @@ class ProviderDefinition {
 
 function handleJumpToCommonUtils({ label, documentUriPath }) {
 	try {
-		const record = find(store.utilsVar.records, ([name]) => {
+		const record = find(store.configs.globalVaribles, ([name]) => {
 			return name === `_.${label}`;
 		});
+
 		if (record) {
+
 			const [, { node: {
 				loc: {
 					start: { line, column }
 				}
 			} }] = record;
-			const normalizedAbsolutePath = normalizedAbsolutePathForFS({
-				documentUriPath,
-				urlInSourceCode: "/common/libs/common.js"
-			});
+
+			const normalizedAbsolutePath = normalizedAbsolutePathForFS({ documentUriPath, urlInSourceCode: "/common/libs/common.js" });
+
 			return [
-				new vc.Location(
-					vc.Uri.file(normalizedAbsolutePath),
-					new vc.Position(line - 1, column)
+				new vscode.Location(
+					vscode.Uri.file(normalizedAbsolutePath),
+					new vscode.Position(line - 1, column)
 				)
 			];
 		}
@@ -140,29 +136,18 @@ function handleJumpToVueVaribles({ label }) {
 			}
 		} = node;
 		return [
-			new vc.Location(
-				vc.Uri.file(absolutePath),
-				new vc.Position(line - 1, column)
+			new vscode.Location(
+				vscode.Uri.file(absolutePath),
+				new vscode.Position(line - 1, column)
 			)
 		];
 	}
 	return null;
 }
-function handleJumpToComponentTag({ tagName, documentUriPath }) {
-	const matchString = fileInfo => {
-		return tagName === fileInfo.fileName;
-	};
-	const suggestions = store.vueFiles.records
-		.filter(matchString)
-		.map(({ urlInSourceCode }) => {
-			const normalizedAbsolutePath = normalizedAbsolutePathForFS({
-				documentUriPath,
-				urlInSourceCode
-			});
-			if (normalizedAbsolutePath) {
-				return newFileLocation(normalizedAbsolutePath);
-			}
-		});
+function handleJumpToComponentTag({ tagName }) {
+	const suggestions = store.configs.components[tagName].map((relativePath) => {
+		return newFileLocation(path.resolve(vscode.workspace.rootPath, relativePath));
+	});
 
 	if (!suggestions.length) {
 		return;
@@ -171,7 +156,7 @@ function handleJumpToComponentTag({ tagName, documentUriPath }) {
 }
 
 exports.register = function (context) {
-	const subscription = vc.languages.registerDefinitionProvider(
+	const subscription = vscode.languages.registerDefinitionProvider(
 		[
 			{ scheme: "file", language: "vue" },
 			{ scheme: "file", language: "javascript" },

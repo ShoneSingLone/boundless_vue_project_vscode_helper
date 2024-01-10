@@ -53,11 +53,7 @@ exports.isObject = function isObject(obj) {
  * @param {*} param0
  * @returns
  */
-exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({
-	documentUriPath,
-	urlInSourceCode,
-	isGetDir
-}) {
+exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ documentUriPath, urlInSourceCode, isGetDir }) {
 	const _urlInSourceCode = String(urlInSourceCode);
 	const ext = path.extname(urlInSourceCode);
 	let mayTryTypescript = false;
@@ -91,9 +87,7 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({
 			}
 
 			let isInAliasMap = false;
-			for (const [aliasRegExp, aliasPath] of Object.entries(
-				store.configs.alias
-			)) {
+			for (const [aliasRegExp, aliasPath] of Object.entries(store.configs.alias)) {
 				if (new RegExp(aliasRegExp).test(urlInSourceCode)) {
 					SRC_ROOT_PATH = urlInSourceCode.replace(
 						new RegExp(aliasRegExp),
