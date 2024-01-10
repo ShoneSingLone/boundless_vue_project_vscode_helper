@@ -18,9 +18,11 @@ function activate(context) {
 		let commandScanner = vscode.commands.registerCommand(
 			"shone.sing.lone.readAst",
 			() => {
-				store.configs = require(
-					path.resolve(vscode.workspace.rootPath, "configs.boundless.vue.project.js")
-				);
+				let configsPath = path.resolve(vscode.workspace.rootPath, "configs.boundless.vue.project.js");
+				configsPath = require.resolve(configsPath);
+				delete require.cache[configsPath];
+				const configs = require(configsPath);
+				store.configs = configs;
 			}
 		);
 		context.subscriptions.push(commandScanner);

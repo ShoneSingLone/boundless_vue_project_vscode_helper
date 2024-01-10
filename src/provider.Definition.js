@@ -99,50 +99,42 @@ class ProviderDefinition {
 	}
 }
 
-function handleJumpToCommonUtils({ label, documentUriPath }) {
+function handleJumpToCommonUtils({ label }) {
 	try {
-		const record = find(store.configs.globalVaribles, ([name]) => {
-			return name === `_.${label}`;
-		});
+		const { vars, files } = store.configs.globalLodash;
+		const [fileProps, line, column] = vars[label];
+		const filePath = files[fileProps];
 
-		if (record) {
-
-			const [, { node: {
-				loc: {
-					start: { line, column }
-				}
-			} }] = record;
-
-			const normalizedAbsolutePath = normalizedAbsolutePathForFS({ documentUriPath, urlInSourceCode: "/common/libs/common.js" });
-
-			return [
-				new vscode.Location(
-					vscode.Uri.file(normalizedAbsolutePath),
-					new vscode.Position(line - 1, column)
-				)
-			];
-		}
+		return [
+			new vscode.Location(
+				vscode.Uri.file(path.resolve(vscode.workspace.rootPath, filePath)),
+				new vscode.Position(line - 1, column)
+			)
+		];
 	} catch (error) {
 
 	}
+
 	return null;
+
 }
-function handleJumpToVueVaribles({ label }) {
-	const { absolutePath, node } = store.vueVaribles.get(label);
-	if (node) {
-		const {
-			loc: {
-				start: { line, column }
-			}
-		} = node;
+function handleJumpToVueVaribles({ label }) {/* 
+	try {
+		const { vars, files } = store.configs.globalLodash;
+		const [fileProps, line, column] = vars[label];
+		const filePath = files[fileProps];
+
 		return [
 			new vscode.Location(
 				vscode.Uri.file(absolutePath),
 				new vscode.Position(line - 1, column)
 			)
 		];
+	} catch (error) {
+
 	}
-	return null;
+
+	return null; */
 }
 function handleJumpToComponentTag({ tagName }) {
 	const suggestions = store.configs.components[tagName].map((relativePath) => {
