@@ -2,6 +2,10 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 2024年1月13日
+
+- 代码片段
+
 ## 2024年1月8日
 
 - 改为手工调用scan

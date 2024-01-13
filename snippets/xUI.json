@@ -81,6 +81,7 @@
 	"boundless Vue SFC template": {
 		"prefix": "xsfc",
 		"body": [
+			"<style lang=\"less\"></style>",
 			"<template>",
 			"    <div>{{ THIS_FILE_URL }}</div>",
 			"</template>",
@@ -91,8 +92,7 @@
 			"        data() {return {THIS_FILE_URL};}",
 			"    });",
 			"} ",
-			"</script>",
-			"<style lang=\"less\"></style>"
+			"</script>"
 		],
 		"description": "pure sfc template"
 	},
