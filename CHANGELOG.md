@@ -4,7 +4,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## 2024年1月13日
 
-- 代码片段
+- 移除lodash相关的代码片段
 
 ## 2024年1月8日
 
