@@ -2,6 +2,10 @@
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## 2024年3月28日
+
+- 修复代码提示:xsfdialog 的自动补全
+
 ## 2024年1月19日
 
 - 修复代码提示:xsfdialog 的自动补全
