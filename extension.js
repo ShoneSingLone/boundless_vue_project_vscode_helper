@@ -13,6 +13,11 @@ function activate(context) {
 			path.resolve(vscode.workspace.rootPath, "configs.boundless.vue.project.js")
 		);
 		registerProvider({ context });
+		
+		// 提示用户当前是boundless项目
+		vscode.window.showInformationMessage(
+			"当前项目是Boundless Vue项目，boundless-vue-helper扩展已激活，您可以使用别名跳转等功能。"
+		);
 
 		/* 可以通过ctrl+shift+p打开命令面板,manual 调用 scanner*/
 		let commandScanner = vscode.commands.registerCommand(

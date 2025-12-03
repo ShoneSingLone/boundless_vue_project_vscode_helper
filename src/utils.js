@@ -152,57 +152,254 @@ exports.asyncAllDirAndFile = async function asyncAllDirAndFile(
 exports.last = arr => (arr.length > 0 ? arr[arr.length - 1] : "");
 
 /**
- *
- * @param {*} normalizedAbsolutePath
- * @returns Location
+ * 创建文件位置
+ * @param {string} normalizedAbsolutePath 文件绝对路径
+ * @param {number} line 行号（从0开始）
+ * @param {number} column 列号（从0开始）
+ * @returns {vscode.Location} 文件位置对象
  */
-function newFileLocation(normalizedAbsolutePath) {
+function newFileLocation(normalizedAbsolutePath, line = 0, column = 0) {
 	const vc = require("vscode");
 	return new vc.Location(
 		vc.Uri.file(normalizedAbsolutePath),
-		new vc.Position(0, 0)
+		new vc.Position(line, column)
 	);
 }
 exports.newFileLocation = newFileLocation;
 
+/**
+ * Vue文件解析器
+ * @param {string} sourceCodeString Vue文件源代码
+ * @returns {Object} 解析后的Vue文件结构
+ */
 exports.VueLoader = function (sourceCodeString) {
+	/**
+	 * 获取指定标签的内容
+	 * @param {string} source 源代码
+	 * @param {string} pickType 标签类型
+	 * @returns {Array} [标签内容, 标签属性, 开始位置, 结束位置]
+	 */
 	function getSource(source, pickType) {
 		try {
 			var regex = new RegExp(`<${pickType}[^(>|())]*>`);
 			var openingTag = source.match(regex);
 			var targetSource = "";
+			var startPos = 0;
+			var endPos = 0;
+			var attrs = {};
+			
 			if (!openingTag) {
-				return [targetSource, {}];
+				return [targetSource, attrs, startPos, endPos];
 			} else {
 				openingTag = openingTag[0];
-				targetSource = source.slice(
-					source.indexOf(openingTag) + openingTag.length,
-					source.lastIndexOf("</" + pickType + ">")
-				);
+				startPos = source.indexOf(openingTag) + openingTag.length;
+				endPos = source.lastIndexOf("</" + pickType + ">");
+				targetSource = source.slice(startPos, endPos);
+				
+				// 解析标签属性
+				var attrRegex = /(\w+)=["']([^"']+)["']/g;
+				var match;
+				while ((match = attrRegex.exec(openingTag)) !== null) {
+					attrs[match[1]] = match[2];
+				}
 			}
+			
 			/* TODO: jsx解析*/
 			if (["template", "setup-render"].includes(pickType)) {
 				targetSource = targetSource.replace(/`/g, "\\`");
 			}
-			return [targetSource];
+			return [targetSource, attrs, startPos, endPos];
 		} catch (error) {
 			console.error(error);
+			return ["", {}, 0, 0];
 		}
 	}
 
+	/**
+	 * 解析script标签中的导出组件
+	 * @param {string} scriptCode script标签内容
+	 * @param {number} scriptStartPos script标签开始位置
+	 * @returns {Object} 导出的组件信息
+	 */
+	function parseScript(scriptCode, scriptStartPos) {
+		const exports = {
+			name: null,
+			components: {},
+			methods: {},
+			data: null,
+			computed: {},
+			watch: {},
+			props: {},
+			directives: {}
+		};
+
+		// 提取组件名称
+		const nameMatch = scriptCode.match(/name\s*:\s*['"`]([^'"]+)['"`]/);
+		if (nameMatch) {
+			exports.name = nameMatch[1];
+			exports.namePos = scriptStartPos + nameMatch.index + nameMatch[0].indexOf(nameMatch[1]);
+		}
+
+		// 提取components
+		const componentsMatch = scriptCode.match(/components\s*:\s*\{([^}]+)\}/);
+		if (componentsMatch) {
+			const componentsCode = componentsMatch[1];
+			const componentRegex = /([\w-]+)\s*:\s*([\w$_.]+)/g;
+			let match;
+			while ((match = componentRegex.exec(componentsCode)) !== null) {
+				exports.components[match[1]] = {
+					name: match[2],
+					pos: scriptStartPos + componentsMatch.index + componentsMatch[0].indexOf(match[1])
+				};
+			}
+		}
+
+		// 提取methods
+		const methodsMatch = scriptCode.match(/methods\s*:\s*\{([^}]+)\}/);
+		if (methodsMatch) {
+			const methodsCode = methodsMatch[1];
+			const methodRegex = /([\w$]+)\s*:\s*function|([\w$]+)\s*\(/g;
+			let match;
+			while ((match = methodRegex.exec(methodsCode)) !== null) {
+				const methodName = match[1] || match[2];
+				if (methodName) {
+					exports.methods[methodName] = {
+						pos: scriptStartPos + methodsMatch.index + methodsMatch[0].indexOf(methodName)
+					};
+				}
+			}
+		}
+
+		// 提取props
+		const propsMatch = scriptCode.match(/props\s*:\s*\{([^}]+)\}/);
+		if (propsMatch) {
+			const propsCode = propsMatch[1];
+			const propRegex = /([\w$]+)\s*:/g;
+			let match;
+			while ((match = propRegex.exec(propsCode)) !== null) {
+				exports.props[match[1]] = {
+					pos: scriptStartPos + propsMatch.index + propsMatch[0].indexOf(match[1])
+				};
+			}
+		}
+
+		// 提取computed
+		const computedMatch = scriptCode.match(/computed\s*:\s*\{([^}]+)\}/);
+		if (computedMatch) {
+			const computedCode = computedMatch[1];
+			const computedRegex = /([\w$]+)\s*:\s*function|([\w$]+)\s*\(/g;
+			let match;
+			while ((match = computedRegex.exec(computedCode)) !== null) {
+				const computedName = match[1] || match[2];
+				if (computedName) {
+					exports.computed[computedName] = {
+						pos: scriptStartPos + computedMatch.index + computedMatch[0].indexOf(computedName)
+					};
+				}
+			}
+		}
+
+		return exports;
+	}
+
+	/**
+	 * 解析template标签中的组件引用
+	 * @param {string} templateCode template标签内容
+	 * @param {number} templateStartPos template标签开始位置
+	 * @returns {Object} 组件引用信息
+	 */
+	function parseTemplate(templateCode, templateStartPos) {
+		const components = {};
+		// 匹配所有自定义组件标签
+		const componentRegex = /<([A-Z][\w-]+)[^>]*>/g;
+		let match;
+		while ((match = componentRegex.exec(templateCode)) !== null) {
+			const componentName = match[1];
+			if (!components[componentName]) {
+				components[componentName] = [];
+			}
+			components[componentName].push({
+				pos: templateStartPos + match.index + 1 // +1 to skip '<'
+			});
+		}
+		return components;
+	}
+
+	/**
+	 * 根据位置计算行号和列号
+	 * @param {string} source 源代码
+	 * @param {number} pos 位置
+	 * @returns {Object} {line, column}
+	 */
+	function getLineAndColumn(source, pos) {
+		const lines = source.slice(0, pos).split(/\r?\n/);
+		return {
+			line: lines.length - 1,
+			column: lines[lines.length - 1].length
+		};
+	}
+
 	function splitCode() {
-		const [scritpSourceCode] = getSource(sourceCodeString, "script");
-		const [templateSourceCode] = getSource(sourceCodeString, "template");
-		const [styleSourceCode] = getSource(sourceCodeString, "style");
-		const [setupRenderSourceCode, { scope }] = getSource(
+		const [scriptCode, scriptAttrs, scriptStartPos, scriptEndPos] = getSource(sourceCodeString, "script");
+		const [templateCode, templateAttrs, templateStartPos, templateEndPos] = getSource(sourceCodeString, "template");
+		const [styleCode, styleAttrs, styleStartPos, styleEndPos] = getSource(sourceCodeString, "style");
+		const [setupRenderCode, setupRenderAttrs, setupRenderStartPos, setupRenderEndPos] = getSource(
 			sourceCodeString,
 			"setup-render"
 		);
+
+		const scriptExports = parseScript(scriptCode, scriptStartPos);
+		const templateComponents = parseTemplate(templateCode, templateStartPos);
+
 		return {
-			scritpSourceCode,
-			templateSourceCode,
-			styleSourceCode,
-			setupRenderSourceCode
+			script: {
+				code: scriptCode,
+				attrs: scriptAttrs,
+				exports: scriptExports,
+				startPos,
+				endPos
+			},
+			template: {
+				code: templateCode,
+				attrs: templateAttrs,
+				components: templateComponents,
+				startPos: templateStartPos,
+				endPos: templateEndPos
+			},
+			style: {
+				code: styleCode,
+				attrs: styleAttrs,
+				startPos: styleStartPos,
+				endPos: styleEndPos
+			},
+			setupRender: {
+				code: setupRenderCode,
+				attrs: setupRenderAttrs,
+				startPos: setupRenderStartPos,
+				endPos: setupRenderEndPos
+			},
+			/**
+			 * 查找元素在文件中的位置
+			 * @param {string} type 元素类型 (component, method, prop, computed)
+			 * @param {string} name 元素名称
+			 * @returns {Object|null} {line, column} 或 null
+			 */
+			findElementPosition: function(type, name) {
+				if (type === 'component') {
+					// 先在script的components中查找
+					if (scriptExports.components[name]) {
+						return getLineAndColumn(sourceCodeString, scriptExports.components[name].pos);
+					}
+					// 再在script的exports.name中查找
+					if (scriptExports.name === name) {
+						return getLineAndColumn(sourceCodeString, scriptExports.namePos);
+					}
+				} else if (scriptExports[type] && scriptExports[type][name]) {
+					// 查找methods, props, computed等
+					return getLineAndColumn(sourceCodeString, scriptExports[type][name].pos);
+				}
+				return null;
+			}
 		};
 	}
 
