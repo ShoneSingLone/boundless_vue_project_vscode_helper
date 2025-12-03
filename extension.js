@@ -2,6 +2,7 @@ const vscode = require("vscode");
 const path = require("path");
 const { registerProvider } = require("./src/registerProvider.js");
 const { store } = require("./src/store.js");
+const { scanCommonTsFile, findCommonTsFile, setupCommonTsWatcher } = require("./src/utils.autoScan.js");
 
 /**
  * @param {any} context
@@ -28,12 +29,42 @@ function activate(context) {
 				delete require.cache[configsPath];
 				const configs = require(configsPath);
 				store.configs = configs;
+				
+				// 重新扫描common.ts文件
+				const commonTsPath = findCommonTsFile();
+				if (commonTsPath) {
+					scanCommonTsFile(commonTsPath);
+				}
 			}
 		);
 		context.subscriptions.push(commandScanner);
 		vscode.commands.executeCommand("shone.sing.lone.readAst");
+		
+		// 自动扫描common.ts文件
+		const commonTsPath = findCommonTsFile();
+		if (commonTsPath) {
+			scanCommonTsFile(commonTsPath);
+			// 设置文件监听器
+			setupCommonTsWatcher(commonTsPath, context);
+			console.log(`Auto-scan enabled for common.ts at: ${commonTsPath}`);
+		} else {
+			console.log("common.ts file not found, auto-scan disabled");
+		}
 	} catch (error) {
 		console.error(error);
+		
+		// 即使配置文件加载失败，也尝试自动扫描common.ts文件
+		try {
+			const commonTsPath = findCommonTsFile();
+			if (commonTsPath) {
+				scanCommonTsFile(commonTsPath);
+				// 设置文件监听器
+				setupCommonTsWatcher(commonTsPath, context);
+				console.log(`Auto-scan enabled for common.ts at: ${commonTsPath}`);
+			}
+		} catch (autoScanError) {
+			console.error("Error in auto-scan:", autoScanError);
+		}
 	}
 }
 module.exports = {

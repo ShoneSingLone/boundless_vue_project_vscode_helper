@@ -21,6 +21,22 @@ module.exports = {
 	globalVaribles: {
 		_: "static_vue2/common/libs/common.js"
 	},
+	/*
+	globalLodash 配置用于支持 _.\$xxx 函数跳转到 common.ts
+	注意：插件现在支持自动扫描 common.ts 文件，无需手动配置此选项
+	vars：函数定义映射表，格式为 {函数名: [文件标识, 行号, 列号]}
+	files：文件路径映射表，格式为 {文件标识: 文件相对路径}
+	*/
+	globalLodash: {
+		vars: {
+			"$importVue": ["common", 10, 0],
+			"$showMessage": ["common", 20, 0],
+			"$ajax": ["common", 30, 0]
+		},
+		files: {
+			"common": "static_vue2/common.ts"
+		}
+	}
 	vueVaribles: {
 		_api: "static_vue2/business_xxxAppNamexxx/utils/api.vue",
 		_opts: "static_vue2/business_xxxAppNamexxx/utils/opts.vue"
@@ -36,6 +52,17 @@ module.exports = {
 ## alias 跳转规则
 
 - 引号 " ' ` 内部的 会尝试添加 js 后缀，如果是 bounndless 的组件，肯定是带.vue 后缀的
+
+### 自动扫描 \_.$xxx 函数
+**作用**: 插件会自动扫描项目中的 common.ts 文件，提取所有 \_.$xxx 函数定义，无需手动配置即可实现函数跳转。
+
+**自动扫描位置**:
+- 项目根目录: `common.ts`
+- `src/common.ts`
+- `static_vue2/common.ts`
+- `business_common/common.ts`
+
+**文件变化监控**: 插件会监听 common.ts 文件的变化，当文件内容更新时，会自动重新扫描函数定义。
 
 ## \_.$importVue
 
@@ -91,3 +118,13 @@ vsce publish patch, minor, or major
 - [vtable](https://visactor.io/vtable/demo/edit/add-delete-records)
 
 > Big thanks to everyone who has used this over the years. If you have found this helped at all, feel free to [buy me a coffee](https://www.buymeacoffee.com/shonesinglone)!
+
+
+- AI assistant
+
+在Boundless项目中，_.$xxx的函数定义在common.ts里面，本项目作为VSCOde插件，要实现能直接跳转到函数对应位置
+业务代码，不需要用户自己配置，只需要在VSCode中安装该插件，位置信息在后台自动扫描，如果对应文件有变动，会自动更新
+相关代码可以参看
+https://gitee.com/ShoneSingLone/boundless_static_business_yapi
+通用函数
+https://gitee.com/ShoneSingLone/boundless_static_common
