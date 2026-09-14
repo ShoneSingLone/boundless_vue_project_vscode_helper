@@ -112,9 +112,13 @@ class ProviderDefinition {
 function handleJumpToCommonUtils({ label, documentUriPath }) {
 	try {
 		// 首先尝试使用自动扫描的配置信息
-		if (store && store.configs && store.configs.global_define) {
-			const { global_define } = store.configs;
-			const { vars, files } = global_define;
+		const isUseAutoScanLodashDefine = () => {
+			return store && store.configs && store.configs.scanLodashDefine;
+		};
+
+		if (isUseAutoScanLodashDefine()) {
+			const { scanLodashDefine } = store.configs;
+			const { vars, files } = scanLodashDefine;
 
 			if (vars && files && vars[label]) {
 				const [fileProps, line, column] = vars[label];
@@ -205,7 +209,7 @@ function parseCommonTsDirectly({ label, documentUriPath }) {
 		// 查找函数定义，只支持 _.\$xxx = *** 这种定义方式
 		// 匹配如 _.\$isSame = function() {} 或 _.\$isSame = () => {} 的模式
 		const funcRegex = new RegExp(
-			`_\\.${label}\\s*=\\s*`,
+			`_\\.${label}`,
 			'g'
 		);
 		const match = funcRegex.exec(content);
