@@ -112,9 +112,9 @@ class ProviderDefinition {
 function handleJumpToCommonUtils({ label, documentUriPath }) {
 	try {
 		// 首先尝试使用自动扫描的配置信息
-		if (store && store.configs && store.configs.scanLodashDefine ) {
-			const { scanLodashDefine  } = store.configs;
-			const { vars, files } = scanLodashDefine ;
+		if (store && store.configs && store.configs.global_define) {
+			const { global_define } = store.configs;
+			const { vars, files } = global_define;
 
 			if (vars && files && vars[label]) {
 				const [fileProps, line, column] = vars[label];
@@ -163,7 +163,7 @@ function handleJumpToCommonUtils({ label, documentUriPath }) {
 function parseCommonTsDirectly({ label, documentUriPath }) {
 	try {
 		const possiblePaths = [
-			path.resolve(vscode.workspace.rootPath, 'static_vue2','common','libs','common.ts'),
+			path.resolve(vscode.workspace.rootPath, 'static_vue2', 'common', 'libs', 'common.ts'),
 		];
 
 		let commonTsPath = null;

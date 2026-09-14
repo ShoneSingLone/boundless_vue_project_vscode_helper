@@ -37,20 +37,20 @@ exports.scanCommonTsFile = function (commonTsPath) {
         }
 
         // 更新store中的函数信息
-        if (!store.configs.scanLodashDefine) {
-            store.configs.scanLodashDefine = {};
+        if (!store.configs.global_define) {
+            store.configs.global_define = {};
         }
-        if (!store.configs.scanLodashDefine.vars) {
-            store.configs.scanLodashDefine.vars = {};
+        if (!store.configs.global_define.vars) {
+            store.configs.global_define.vars = {};
         }
-        if (!store.configs.scanLodashDefine.files) {
-            store.configs.scanLodashDefine.files = {};
+        if (!store.configs.global_define.files) {
+            store.configs.global_define.files = {};
         }
 
         // 更新vars中的函数信息
-        Object.assign(store.configs.scanLodashDefine.vars, functions);
+        Object.assign(store.configs.global_define.vars, functions);
         // 更新files中的文件路径信息
-        store.configs.scanLodashDefine.files["common"] = path.relative(vscode.workspace.rootPath, commonTsPath);
+        store.configs.global_define.files["common"] = path.relative(vscode.workspace.rootPath, commonTsPath);
 
         console.log(`Successfully scanned common.ts and found ${Object.keys(functions).length} functions`);
     } catch (error) {
