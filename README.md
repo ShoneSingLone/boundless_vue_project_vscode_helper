@@ -11,15 +11,18 @@
 ```js
 module.exports = {
 	alias: {
-		"^/common/": "/static_vue2/common/"
+		"^/common/": "/statics/common/"
 	},
+	// 【可选】静态目录映射：扩展据此解析外部静态目录（由 xspace_configs.js 的 mapping_statics 注入）
+	// 形如 { prefix: "/business_cib", dir: "E:\\ghca_code\\xspace.business_statics\\business_cib" }
+	mapping_statics: [],
 	analysis: {
-		findFilesInclude: "static_vue2/**/*.vue",
-		businessPrefix: "static_vue2/business_",
-		commonPrefix: "static_vue2/common/"
+		findFilesInclude: "statics/**/*.vue",
+		businessPrefix: "statics/business_",
+		commonPrefix: "statics/common/"
 	},
 	globalVaribles: {
-		_: "static_vue2/common/libs/common.js"
+		_: "statics/common/libs/common.js"
 	},
 	/*
 	globalLodash 配置用于支持 _.\$xxx 函数跳转到 common.ts
@@ -34,12 +37,12 @@ module.exports = {
 			"$ajax": ["common", 30, 0]
 		},
 		files: {
-			"common": "static_vue2/common.ts"
+			"common": "statics/common.ts"
 		}
 	}
 	vueVaribles: {
-		_api: "static_vue2/business_xxxAppNamexxx/utils/api.vue",
-		_opts: "static_vue2/business_xxxAppNamexxx/utils/opts.vue"
+		_api: "statics/business_xxxAppNamexxx/utils/api.vue",
+		_opts: "statics/business_xxxAppNamexxx/utils/opts.vue"
 	}
 };
 ```
@@ -59,8 +62,8 @@ module.exports = {
 **自动扫描位置**:
 - 项目根目录: `common.ts`
 - `src/common.ts`
-- `static_vue2/common.ts`
-- `business_common/common.ts`
+- `statics/common/common.ts`
+- `mapping_statics` 各映射目录下的 `common.ts`
 
 **文件变化监控**: 插件会监听 common.ts 文件的变化，当文件内容更新时，会自动重新扫描函数定义。
 

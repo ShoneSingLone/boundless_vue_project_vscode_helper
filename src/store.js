@@ -3,8 +3,9 @@ exports.store = {
 	vueFiles: {},
 	configs: {
 		alias: {
-			"^/common/": "/static_vue2/common/"
+			"^/common/": "/statics/common/"
 		},
+		mapping_statics: [],
 		globalLodash: {},
 		globalVaribles: {}
 	}

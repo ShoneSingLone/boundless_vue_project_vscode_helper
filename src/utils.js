@@ -6,6 +6,26 @@ const { store } = require("./store");
 
 const ALIAS_PATH_CACHE = {};
 
+/* 前缀归一化：必须以 / 开头、去尾部斜杠；"/" 单独保留（同 statics-map.js） */
+function normalizePrefix(prefix) {
+	const raw = String(prefix == null ? "" : prefix).trim();
+	if (raw.charAt(0) !== "/") return "";
+	const trimmed = raw.replace(/\/+$/, "");
+	return trimmed === "" ? "/" : trimmed;
+}
+
+/* 文档绝对路径 → 命中的映射目录（dir 为祖先目录）；未命中返回 null */
+function getMountedDirForDoc(documentUriPath, mounts) {
+	if (!Array.isArray(mounts)) return null;
+	const vc = require("vscode");
+	const target = path.normalize(documentUriPath);
+	for (const m of mounts) {
+		const dir = path.resolve(vc.workspace.rootPath, m.dir);
+		if (target === dir || target.indexOf(dir + path.sep) === 0) return dir;
+	}
+	return null;
+}
+
 exports.CLIENT_EMIT_TYPE_DELETE = "shone.sing.lone.client.emit.type.delete";
 exports.CLIENT_EMIT_TYPE_SAVE = "shone.sing.lone.client.emit.type.save";
 exports.CLIENT_EMIT_TYPE_COMMON_VARIBLES =
@@ -71,19 +91,28 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 	let isInBusiness = /\/business_(.*)\//.test(documentUriPath);
 	let SRC_ROOT_PATH, FILE_PATH, APP_NAME;
 
+	/* 文档所属映射目录（external mapping_statics），未命中为 null */
+	const mountedDirForDoc = getMountedDirForDoc(
+		documentUriPath,
+		store.configs.mapping_statics
+	);
+
 	function getNormalizedAbsolutePath(urlInSourceCode) {
 		const _path = (function () {
-			if (isInBusiness) {
-				[SRC_ROOT_PATH, FILE_PATH] = documentUriPath.split("business_");
-				[APP_NAME] = FILE_PATH.split("/");
-			}
-
 			if (/^@\/(.*)/.test(urlInSourceCode)) {
-				/* 讲道理，_s的文件不会访问business_下的文件 */
-				return String(urlInSourceCode).replace(
-					/^@/,
-					`${SRC_ROOT_PATH}business_${APP_NAME}`
-				);
+				/* 文档在外部映射目录内 → @/ 指向该映射目录 */
+				if (mountedDirForDoc) {
+					return String(urlInSourceCode).replace(/^@/, mountedDirForDoc);
+				}
+				/* 否则走原有 business_ 分割逻辑（兼容 statics/business_xxx） */
+				if (isInBusiness) {
+					[SRC_ROOT_PATH, FILE_PATH] = documentUriPath.split("business_");
+					[APP_NAME] = FILE_PATH.split("/");
+					return String(urlInSourceCode).replace(
+						/^@/,
+						`${SRC_ROOT_PATH}business_${APP_NAME}`
+					);
+				}
 			}
 
 			let isInAliasMap = false;
@@ -101,6 +130,29 @@ exports.normalizedAbsolutePathForFS = function normalizedAbsolutePathForFS({ doc
 			if (isInAliasMap) {
 				const vc = require("vscode");
 				return `${vc.workspace.rootPath}${SRC_ROOT_PATH}`;
+			}
+
+			/* alias 未命中 → 尝试 mapping_statics 前缀映射 */
+			if (Array.isArray(store.configs.mapping_statics)) {
+				const vc = require("vscode");
+				const mounts = store.configs.mapping_statics
+					.map(m => ({ ...m, prefix: normalizePrefix(m.prefix) }))
+					.filter(m => m.prefix)
+					.sort((a, b) => b.prefix.length - a.prefix.length);
+				const match = mounts.find(m =>
+					m.prefix === "/"
+						? true
+						: urlInSourceCode === m.prefix ||
+							urlInSourceCode.indexOf(m.prefix + "/") === 0
+				);
+				if (match) {
+					const dir = path.resolve(vc.workspace.rootPath, match.dir);
+					const relative =
+						match.prefix === "/"
+							? urlInSourceCode.replace(/^\//, "")
+							: urlInSourceCode.slice(match.prefix.length + 1);
+					return path.resolve(dir, relative);
+				}
 			}
 		})();
 

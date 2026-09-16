@@ -167,7 +167,7 @@ function handleJumpToCommonUtils({ label, documentUriPath }) {
 function parseCommonTsDirectly({ label, documentUriPath }) {
 	try {
 		const possiblePaths = [
-			path.resolve(vscode.workspace.rootPath, 'static_vue2', 'common', 'libs', 'common.ts'),
+			path.resolve(vscode.workspace.rootPath, 'statics', 'common', 'libs', 'common.ts'),
 		];
 
 		let commonTsPath = null;
@@ -186,12 +186,29 @@ function parseCommonTsDirectly({ label, documentUriPath }) {
 				const inferredPaths = [
 					path.resolve(rootPath, "common.ts"),
 					path.resolve(rootPath, "common.js"),
-					path.resolve(rootPath, "static_vue2", "common.ts"),
-					path.resolve(rootPath, "static_vue2", "common.js")
+					path.resolve(rootPath, "statics", "common.ts"),
+					path.resolve(rootPath, "statics", "common.js")
 				];
 				for (const inferredPath of inferredPaths) {
 					if (fs.existsSync(inferredPath)) {
 						commonTsPath = inferredPath;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!commonTsPath) {
+			// 尝试在 mapping_statics 各映射目录下查找 common.ts
+			if (
+				Array.isArray(store.configs.mapping_statics) &&
+				!commonTsPath
+			) {
+				for (const mount of store.configs.mapping_statics) {
+					const dir = path.resolve(vscode.workspace.rootPath, mount.dir);
+					const candidate = path.join(dir, "common.ts");
+					if (fs.existsSync(candidate)) {
+						commonTsPath = candidate;
 						break;
 					}
 				}

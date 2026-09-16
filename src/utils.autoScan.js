@@ -71,8 +71,7 @@ exports.findCommonTsFile = function () {
     const possiblePaths = [
         path.resolve(vscode.workspace.rootPath, "common.ts"),
         path.resolve(vscode.workspace.rootPath, "src", "common.ts"),
-        path.resolve(vscode.workspace.rootPath, "static_vue2", "common.ts"),
-        path.resolve(vscode.workspace.rootPath, "business_common", "common.ts")
+        path.resolve(vscode.workspace.rootPath, "statics", "common", "common.ts")
     ];
 
     // 遍历所有可能的路径，返回第一个存在的文件
@@ -82,10 +81,15 @@ exports.findCommonTsFile = function () {
         }
     }
 
-    // 如果在项目根目录下找不到，尝试根据别名规则查找
-    const aliasPath = path.resolve(vscode.workspace.rootPath, "static_vue2", "common.ts");
-    if (fs.existsSync(aliasPath)) {
-        return aliasPath;
+    // 尝试在 mapping_statics 各目录下查找 common.ts
+    if (Array.isArray(store.configs.mapping_statics)) {
+        for (const mount of store.configs.mapping_statics) {
+            const dir = path.resolve(vscode.workspace.rootPath, mount.dir);
+            const candidate = path.join(dir, "common.ts");
+            if (fs.existsSync(candidate)) {
+                return candidate;
+            }
+        }
     }
 
     return null;
